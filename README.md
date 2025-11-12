@@ -1,4 +1,4 @@
-# RuiQi WAF
+# WAFHA
 
 <div align="center">
 <a href="https://deepwiki.com/HUAHUAI23/RuiQi"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" width="160" height="30"></a>
