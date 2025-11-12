@@ -1,35 +1,35 @@
 services:
-  # MongoDB 服务
+  # MongoDB услуга
   mongodb:
     image: mongo:6.0
     container_name: waf-demo-mongodb
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example # 请替换为您的实际密码
-      # 可选：指定初始数据库名称
+      MONGO_INITDB_ROOT_PASSWORD: example # Пожалуйста, замените пароль на ваш настоящий
+      # Необязательно: Укажите исходное имя базы данных
       # MONGO_INITDB_DATABASE: waf_db
     volumes:
       - mongodb_data:/data/db
-      - mongodb_config:/data/configdb # 添加配置数据卷
+      - mongodb_config:/data/configdb # Добавить объем конфигурационных данных
     ports:
       - "27017:27017"
     networks:
       - waf-network
-    # 可选：添加命令行参数
+    # Необязательно: Добавьте параметры командной строки
     # command: --wiredTigerCacheSizeGB 1.5
 
-  # RuiQi WAF 服务（统一使用小写命名）
+  # RuiQi WAF Сервис (унифицированное использование имен в нижнем регистре)
   ruiqi:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ruiqi-waf # 容器名小写
+    container_name: ruiqi-waf # Название контейнера в нижнем регистре
     restart: always
     depends_on:
       - mongodb
     environment:
-      DB_URI: mongodb://root:example@mongodb:27017 # 请替换为您的实际密码
+      DB_URI: mongodb://root:example@mongodb:27017 # Пожалуйста, замените свой реальный пароль
       JWT_SECRET: ffffffffffffffffffffffffffffff
       IS_PRODUCTION: "false"
       VITE_API_BASE_URL: http://localhost:2333/api/v1
@@ -45,7 +45,7 @@ services:
     networks:
       - waf-network
 
-# 定义持久化卷
+# Определение постоянного объема
 volumes:
   mongodb_data:
     driver: local
@@ -54,7 +54,7 @@ volumes:
   ruiqi_data:
     driver: local
 
-# 定义网络
+# Определите сеть
 networks:
   waf-network:
     driver: bridge
