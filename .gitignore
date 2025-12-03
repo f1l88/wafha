@@ -1,3 +1,17 @@
-# 环境变量文件（全局忽略，但保留模板文件）
-**/.env*
-!**/.env.template
+*.exe
+*.exe~
+*.dll
+*.so
+*.o
+*.dylib
+.DS_Store
+.idea
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+vendor/
+
+# Build output
+build/

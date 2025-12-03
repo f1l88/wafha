@@ -1,0 +1,640 @@
+{
+    "sidebar": {
+        "title": "WAFHA",
+        "monitor": "Мониторинг",
+        "logs": "Логи",
+        "rules": "Правила",
+        "settings": "Настройки",
+        "logout": "Выйти"
+    },
+    "breadcrumb": {
+        "logs": {
+            "attack": "Атаки",
+            "protect": "Логи защиты"
+        },
+        "monitor": {
+            "overview": "Мониторинг",
+            "dashboard": "Панель безопасности"
+        },
+        "rules": {
+            "system": "Системные правила",
+            "user": "Пользовательские правила",
+            "ipGroup": "Управление IP-группами",
+            "flowControl": "Ограничение частоты"
+        },
+        "settings": {
+            "settings": "Настройки",
+            "siteManager": "Управление сайтами",
+            "certManager": "Управление сертификатами"
+        }
+    },
+    "common": {
+        "loading": "Загрузка...",
+        "language": "Выберите язык",
+        "copied": "Скопировано",
+        "save": "Сохранить",
+        "create": "Создать",
+        "delete": "Удалить",
+        "cancel": "Отмена",
+        "submitting": "Отправка..."
+    },
+    "error": {
+        "title": "Произошла ошибка",
+        "code": "Код ошибки",
+        "appProblem": "В приложении возникла непредвиденная проблема",
+        "unexpected": "Произошла непредвиденная ошибка",
+        "refresh": "Обновить страницу",
+        "returnHome": "Вернуться на главную",
+        "loading": "Ошибка загрузки данных",
+        "message": "Сообщение об ошибке",
+        "details": "Детали ошибки",
+        "requestId": "ID запроса",
+        "cannotParse": "Не удалось разобрать детали ошибки",
+        "viewDetails": "Показать детали",
+        "hideDetails": "Скрыть детали",
+        "retry": "Повторить",
+        "network": {
+            "title": "Ошибка сетевого подключения",
+            "description": "Не удается подключиться к серверу. Проверьте подключение к сети."
+        },
+        "timeout": {
+            "title": "Таймаут запроса",
+            "description": "Время ответа сервера слишком велико. Повторите попытку позже."
+        },
+        "forbidden": {
+            "title": "Доступ запрещен",
+            "description": "У вас нет прав для доступа к этому ресурсу."
+        },
+        "unauthorized": {
+            "title": "Неавторизованный доступ",
+            "description": "Ваш статус входа недействителен. Войдите снова."
+        },
+        "server": {
+            "title": "Ошибка сервера",
+            "description": "Сервер временно не может обработать ваш запрос. Повторите попытку позже."
+        },
+        "client": {
+            "title": "Ошибка запроса",
+            "description": "Параметры или формат запроса некорректны."
+        },
+        "validation": {
+            "title": "Ошибка валидации данных",
+            "description": "Отправленные данные не прошли проверку."
+        },
+        "unknown": {
+            "title": "Произошла ошибка",
+            "description": "При загрузке данных произошла неизвестная ошибка."
+        }
+    },
+    "auth": {
+        "login": "Вход",
+        "loginDescription": "Введите имя пользователя и пароль для входа",
+        "username": "Имя пользователя",
+        "usernamePlaceholder": "Введите имя пользователя",
+        "password": "Пароль",
+        "passwordPlaceholder": "Введите пароль",
+        "loggingIn": "Выполняется вход...",
+        "resetPassword": "Сбросить пароль",
+        "firstLoginReset": "При первом входе требуется смена пароля",
+        "enterOldAndNewPassword": "Введите текущий и новый пароль",
+        "currentPassword": "Текущий пароль",
+        "enterCurrentPassword": "Введите текущий пароль",
+        "newPassword": "Новый пароль",
+        "enterNewPassword": "Введите новый пароль",
+        "confirmNewPassword": "Подтвердите новый пароль",
+        "enterNewPasswordAgain": "Введите новый пароль еще раз",
+        "submitting": "Отправка...",
+        "passwordRequirement": "Пароль должен быть не менее 6 символов"
+    },
+    "filter": "Фильтр",
+    "reset": "Сбросить",
+    "search": "Поиск",
+    "domain": "Домен",
+    "dstPort": "Порт назначения",
+    "srcIp": "IP источника",
+    "attackCount": "Количество атак",
+    "firstAttackTime": "Время первой атаки",
+    "lastAttackTime": "Время последней атаки",
+    "status": "Статус атаки",
+    "attackEnded": "Атака завершена",
+    "noOngoingAttack": "В настоящее время нет продолжающихся атак",
+    "ongoing": "Атака продолжается",
+    "attackDuration": "Продолжительность",
+    "autoRefresh": "Автообновление",
+    "interval": "Интервал",
+    "second": "Секунда",
+    "refresh": "Обновить",
+    "domainPlaceholder": "Введите доменное имя",
+    "dstIp": "Целевой IP",
+    "srcPort": "Порт источника",
+    "portPlaceholder": "Введите порт",
+    "ipPlaceholder": "Введите IP",
+    "startTime": "Время начала",
+    "endTime": "Время окончания",
+    "ruleId": "ID правила",
+    "ruleIdPlaceholder": "Введите ID правила",
+    "requestId": "ID запроса",
+    "requestIdPlaceholder": "Введите ID запроса",
+    "attackTarget": "Цель",
+    "createdAt": "Время создания",
+    "detail": "Детали",
+    "noResult": "Нет данных",
+    "attackDetail": {
+        "title": "Детали лога атаки",
+        "highRiskAttack": "Высокорисковая атака",
+        "overview": "Детали атаки",
+        "target": "Цель атаки",
+        "message": "Информация об атаке",
+        "viewRuleDetail": "Посмотреть детали правила",
+        "attackTime": "Время атаки",
+        "detectedPayload": "Обнаруженная нагрузка",
+        "attackSource": "Источник атаки",
+        "blockThisIp": "Заблокировать этот IP",
+        "location": "Местоположение",
+        "noLocationInfo": "Нет информации о местоположении",
+        "targetInfo": "Информация о цели",
+        "technicalDetails": "Детали",
+        "copyCurl": "Копировать cURL",
+        "encoding": "Кодировка",
+        "request": "Запрос",
+        "response": "Ответ",
+        "logs": "Логи",
+        "copyAll": "Копировать все",
+        "noResponse": "Нет данных"
+    },
+    "globalSetting": {
+        "title": "Общие настройки",
+        "description": "Некоторые настройки требуют перезапуска движка для вступления в силу, такие как изменения сайтов и конфигурации движка",
+        "engine": {
+            "management": "Управление движком",
+            "setting": "Настройки движка",
+            "status": "Статус движка",
+            "currentStatus": "Текущий статус:",
+            "loading": "Загрузка...",
+            "running": "Запущен",
+            "stopped": "Остановлен",
+            "processing": "Обработка...",
+            "start": "Запустить",
+            "stop": "Остановить",
+            "restart": "Перезапустить",
+            "forceStop": "Принудительно остановить",
+            "reload": "Горячая перезагрузка",
+            "operationSuccess": "Операция успешна",
+            "operationCompleted": "Операция управления движком успешно завершена",
+            "operationFailed": "Ошибка операции",
+            "operationError": "Произошла ошибка при управлении движком"
+        },
+        "config": {
+            "generalConfig": "Общая конфигурация",
+            "engineThreads": "Потоки движка",
+            "threadsDescription": "Установите количество потоков HAProxy, диапазон 0-256, требуется перезапуск для вступления в силу",
+            "threadsWarning": "При установке 0 система автоматически назначит потоки на основе ядер CPU",
+            "responseCheck": "Проверка ответов",
+            "responseCheckDescription": "Включить проверку WAF содержимого ответов, требуется перезапуск для вступления в силу",
+            "debugMode": "Режим отладки",
+            "debugModeDescription": "Включить режим отладки системы, производит более детальные логи, требуется перезапуск для вступления в силу",
+            "engineDirectives": "Директивы движка",
+            "engineDirectivesPlaceholder": "Введите конфигурацию директив движка...",
+            "engineDirectivesDescription": "Настройка основных директив движка WAF с использованием синтаксиса директив, требуется перезапуск для вступления в силу",
+            "haproxyConfigDir": "Корневая директория конфигурации HAProxy",
+            "haproxyConfigDirDescription": "Корневая директория, где хранятся файлы конфигурации HAProxy, требуется перезапуск для вступления в силу",
+            "haproxyBinPath": "Путь к исполняемому файлу HAProxy",
+            "haproxyBinPathDescription": "Путь к исполняемому файлу HAProxy, требуется перезапуск для вступления в силу",
+            "internationalization": "Интернационализация",
+            "internationalizationDescription": "Установить язык интерфейса системы",
+            "theme": "Тема",
+            "themeDescription": "Переключение между светлой и темной темами"
+        }
+    },
+    "certificate": {
+        "management": "Управление сертификатами",
+        "refresh": "Обновить",
+        "add": "Добавить сертификат",
+        "name": "Имя сертификата",
+        "domains": "Домены",
+        "issuerAndExpiry": "Издатель и срок действия",
+        "issuer": "Издатель",
+        "expiryDate": "Срок действия: ",
+        "expiringSoon": "Скоро истекает",
+        "expired": "Истек",
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "dialog": {
+            "createTitle": "Создать новый сертификат",
+            "updateTitle": "Обновить сертификат",
+            "createDescription": "Заполните информацию о сертификате и загрузите файлы открытого и закрытого ключей, или вставьте содержимое напрямую. Система автоматически распарсит информацию о сертификате.",
+            "updateDescription": "Редактировать информацию о сертификате, изменения будут автоматически сохранены.",
+            "parseFailed": "Ошибка парсинга сертификата: ",
+            "unknownError": "Неизвестная ошибка",
+            "fileReadFailed": "Ошибка чтения файла: ",
+            "certName": "Имя сертификата",
+            "description": "Описание (опционально)",
+            "descriptionPlaceholder": "Введите описание сертификата",
+            "publicKeyFile": "Файл открытого ключа",
+            "uploadPublicKey": "Загрузить открытый ключ",
+            "publicKeyContent": "Содержимое открытого ключа",
+            "publicKeyPlaceholder": "Введите содержимое открытого ключа в формате PEM",
+            "privateKeyFile": "Файл закрытого ключа",
+            "uploadPrivateKey": "Загрузить закрытый ключ",
+            "privateKeyContent": "Содержимое закрытого ключа",
+            "privateKeyPlaceholder": "Введите содержимое закрытого ключа в формате PEM",
+            "orEnterContent": "или введите содержимое напрямую",
+            "parsedInfo": "Распарсенная информация о сертификате",
+            "issuer": "Издатель",
+            "expiryDate": "Срок действия",
+            "fingerprint": "Отпечаток",
+            "domains": "Домены",
+            "submitting": "Отправка...",
+            "create": "Создать",
+            "update": "Обновить"
+        },
+        "deleteDialog": {
+            "confirmTitle": "Подтверждение удаления",
+            "confirmDescription": "Вы уверены, что хотите удалить этот сертификат? Это действие нельзя отменить.",
+            "cancel": "Отмена",
+            "deleting": "Удаление...",
+            "delete": "Удалить"
+        },
+        "toast": {
+            "createSuccess": "Успешно создано",
+            "certificateCreated": "Сертификат успешно создан",
+            "createFailed": "Ошибка создания",
+            "createError": "Произошла ошибка при создании сертификата",
+            "updateSuccess": "Успешно обновлено",
+            "certificateUpdated": "Сертификат успешно обновлен",
+            "updateFailed": "Ошибка обновления",
+            "updateError": "Произошла ошибка при обновлении сертификата",
+            "deleteSuccess": "Успешно удалено",
+            "certificateDeleted": "Сертификат успешно удален",
+            "deleteFailed": "Ошибка удаления",
+            "deleteError": "Произошла ошибка при удалении сертификата"
+        }
+    },
+    "site": {
+        "management": "Управление сайтами",
+        "refresh": "Обновить",
+        "add": "Добавить сайт",
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "name": "Имя сайта",
+        "domain": "Домен",
+        "listenPort": "Порт прослушивания",
+        "backend": "Серверы бэкенда",
+        "https": "HTTPS",
+        "status": "Статус сайта",
+        "wafStatus": "Статус WAF",
+        "enabled": "Включен",
+        "disabled": "Выключен",
+        "active": "Активен",
+        "inactive": "Неактивен",
+        "noData": "Нет данных о сайтах",
+        "dialog": {
+            "createTitle": "Создать новый сайт",
+            "updateTitle": "Обновить сайт",
+            "createDescription": "Заполните информацию о сайте, включая базовую информацию, настройки HTTPS, серверы бэкенда и настройки WAF.",
+            "updateDescription": "Редактировать информацию о сайте, изменения будут автоматически сохранены.",
+            "basicInfo": "Базовая информация",
+            "siteName": "Имя сайта",
+            "siteNamePlaceholder": "Введите имя сайта",
+            "domainPlaceholder": "Введите домен",
+            "siteStatus": "Статус сайта",
+            "siteActive": "Сайт активен",
+            "httpsSettings": "Настройки HTTPS",
+            "enableHttps": "Включить HTTPS",
+            "httpsDescription": "После включения необходимо настроить сертификаты",
+            "selectCertificate": "Выберите сертификат",
+            "uploadNewCert": "Загрузить новый сертификат",
+            "selectedCertInfo": "Информация о выбранном сертификате",
+            "backendServers": "Серверы бэкенда",
+            "addServer": "Добавить сервер",
+            "server": "Сервер",
+            "hostAddress": "Адрес хоста",
+            "hostPlaceholder": "например, 192.168.1.1 или backend.com",
+            "port": "Порт",
+            "enableSsl": "Включить SSL",
+            "backendHttps": "Бэкенд использует HTTPS",
+            "wafSettings": "Настройки WAF",
+            "enableWaf": "Включить WAF",
+            "wafDescription": "Фаервол веб-приложений",
+            "wafMode": "Режим WAF",
+            "selectWafMode": "Выберите режим WAF",
+            "observationMode": "Режим наблюдения",
+            "observationDescription": "Только запись без блокировки",
+            "protectionMode": "Режим защиты",
+            "protectionDescription": "Запись и блокировка атак",
+            "submitting": "Отправка...",
+            "createSite": "Создать сайт",
+            "updateSite": "Обновить сайт"
+        },
+        "deleteDialog": {
+            "confirmTitle": "Подтверждение удаления",
+            "confirmDescription": "Вы уверены, что хотите удалить этот сайт? Это действие нельзя отменить и оно может повлиять на сервисы, использующие этот сайт.",
+            "cancel": "Отмена",
+            "deleting": "Удаление...",
+            "delete": "Удалить"
+        },
+        "toast": {
+            "createSuccess": "Успешно создано",
+            "siteCreated": "Сайт успешно создан",
+            "createFailed": "Ошибка создания",
+            "createError": "Произошла ошибка при создании сайта",
+            "updateSuccess": "Успешно обновлено",
+            "siteUpdated": "Сайт успешно обновлен",
+            "updateFailed": "Ошибка обновления",
+            "updateError": "Произошла ошибка при обновлении сайта",
+            "deleteSuccess": "Успешно удалено",
+            "siteDeleted": "Сайт успешно удален",
+            "deleteFailed": "Ошибка удаления",
+            "deleteError": "Произошла ошибка при удалении сайта"
+        },
+        "view": {
+            "cardView": "Вид карточек",
+            "tableView": "Вид таблицы"
+        },
+        "card": {
+            "upstreamServers": "Верхние серверы:",
+            "certInfo": "Информация о сертификате:"
+        }
+    },
+    "table": {
+        "selected": "Выбрано {{selected}} из {{total}} строк(и).",
+        "rowsPerPage": "Строк на странице",
+        "pageInfo": "Страница {{current}} из {{total}}",
+        "firstPage": "Перейти на первую страницу",
+        "previousPage": "Перейти на предыдущую страницу",
+        "nextPage": "Перейти на следующую страницу",
+        "lastPage": "Перейти на последнюю страницу"
+    },
+    "ipGroup": {
+        "title": "Управление IP-группами",
+        "createButton": "Создать IP-группу",
+        "table": {
+            "name": "Имя группы",
+            "ipAddresses": "IP-адреса",
+            "actions": "Действия"
+        },
+        "form": {
+            "name": "Имя группы",
+            "namePlaceholder": "Введите имя группы",
+            "ipAddresses": "IP-адреса",
+            "ipAddressPlaceholder": "Введите IP-адрес или CIDR (например, 192.168.1.1 или 10.0.0.0/24)",
+            "noIpAddresses": "IP-адреса не добавлены"
+        },
+        "dialog": {
+            "createTitle": "Создать IP-группу",
+            "editTitle": "Редактировать IP-группу",
+            "createDescription": "Создать новую группу IP-адресов для сопоставления с правилами",
+            "editDescription": "Редактировать выбранную группу IP-адресов и ее участников"
+        },
+        "deleteDialog": {
+            "title": "Удалить IP-группу",
+            "description": "Вы уверены, что хотите удалить IP-группу {{name}}? Это действие нельзя отменить."
+        },
+        "validation": {
+            "nameRequired": "Имя группы обязательно",
+            "nameMaxLength": "Имя группы не может превышать 50 символов",
+            "ipItemRequired": "IP-адрес обязателен",
+            "ipItemInvalid": "Неверный формат IP-адреса или CIDR",
+            "ipItemDuplicate": "Этот IP-адрес уже добавлен",
+            "itemsRequired": "Требуется хотя бы один IP-адрес"
+        },
+        "toast": {
+            "createSuccess": "IP-группа создана",
+            "ipGroupCreated": "IP-группа успешно создана",
+            "createFailed": "Ошибка создания",
+            "createError": "Произошла ошибка при создании IP-группы",
+            "updateSuccess": "IP-группа обновлена",
+            "ipGroupUpdated": "IP-группа успешно обновлена",
+            "updateFailed": "Ошибка обновления",
+            "updateError": "Произошла ошибка при обновлении IP-группы",
+            "deleteSuccess": "IP-группа удалена",
+            "ipGroupDeleted": "IP-группа успешно удалена",
+            "deleteFailed": "Ошибка удаления",
+            "deleteError": "Произошла ошибка при удалении IP-группы",
+            "blockSuccess": "IP заблокирован",
+            "ipBlocked": "IP-адрес {{ip}} добавлен в черный список",
+            "blockFailed": "Ошибка блокировки",
+            "blockError": "Произошла ошибка при блокировке IP-адреса"
+        }
+    },
+    "microRule": {
+        "title": "Управление пользовательскими правилами",
+        "refresh": "Обновить",
+        "add": "Добавить правило",
+        "table": {
+            "name": "Имя правила",
+            "type": "Тип правила",
+            "status": "Статус",
+            "priority": "Приоритет",
+            "edit": "Редактировать",
+            "delete": "Удалить"
+        },
+        "form": {
+            "name": "Имя правила",
+            "namePlaceholder": "Введите имя правила",
+            "type": "Тип правила",
+            "selectType": "Выберите тип правила",
+            "whitelist": "Белый список",
+            "blacklist": "Черный список",
+            "status": "Статус",
+            "selectStatus": "Выберите статус",
+            "enabled": "Включено",
+            "disabled": "Выключено",
+            "priority": "Приоритет",
+            "priorityPlaceholder": "Введите приоритет (0-9999)",
+            "condition": "Условие правила"
+        },
+        "condition": {
+            "conditionType": "Тип условия",
+            "selectConditionType": "Выберите тип условия",
+            "simpleCondition": "Простое условие",
+            "compositeCondition": "Составное условие",
+            "target": "Цель сопоставления",
+            "selectTarget": "Выберите цель сопоставления",
+            "sourceIp": "IP источника",
+            "url": "URL",
+            "path": "Путь",
+            "matchType": "Тип сопоставления",
+            "selectMatchType": "Выберите тип сопоставления",
+            "matchValue": "Значение сопоставления",
+            "enterMatchValue": "Введите значение сопоставления",
+            "operator": "Логический оператор",
+            "selectOperator": "Выберите логический оператор",
+            "and": "И",
+            "or": "ИЛИ",
+            "conditionGroup": "Группа условий",
+            "addSimpleCondition": "Добавить условие",
+            "addCompositeCondition": "Добавить группу условий",
+            "addNestedCondition": "Добавить вложенное условие"
+        },
+        "matchTypes": {
+            "equal": "Равно",
+            "not_equal": "Не равно",
+            "fuzzy": "Нечеткое совпадение",
+            "in_cidr": "В диапазоне CIDR",
+            "not_in_cidr": "Не в диапазоне CIDR",
+            "in_ipgroup": "В IP-группе",
+            "not_in_ipgroup": "Не в IP-группе",
+            "include": "Включает",
+            "contains": "Содержит",
+            "not_contains": "Не содержит",
+            "prefix_keyword": "Начинается с",
+            "regex": "Регулярное выражение"
+        },
+        "dialog": {
+            "createTitle": "Создать новое правило",
+            "updateTitle": "Обновить правило",
+            "createDescription": "Создать пользовательское правило WAF для защиты вашего сайта",
+            "updateDescription": "Редактировать информацию о правиле, изменения будут автоматически сохранены"
+        },
+        "deleteDialog": {
+            "confirmTitle": "Подтверждение удаления",
+            "confirmDescription": "Вы уверены, что хотите удалить это правило? Это действие нельзя отменить и оно может повлиять на ваши настройки безопасности.",
+            "cancel": "Отмена",
+            "deleting": "Удаление...",
+            "delete": "Удалить"
+        },
+        "toast": {
+            "createSuccess": "Успешно создано",
+            "microRuleCreated": "Правило успешно создано",
+            "createFailed": "Ошибка создания",
+            "createError": "Произошла ошибка при создании правила",
+            "updateSuccess": "Успешно обновлено",
+            "microRuleUpdated": "Правило успешно обновлено",
+            "updateFailed": "Ошибка обновления",
+            "updateError": "Произошла ошибка при обновлении правила",
+            "deleteSuccess": "Успешно удалено",
+            "microRuleDeleted": "Правило успешно удалено",
+            "deleteFailed": "Ошибка удаления",
+            "deleteError": "Произошла ошибка при удалении правила"
+        }
+    },
+    "stats": {
+        "title": "Статистика",
+        "overview": "Ключевые метрики",
+        "timeRange": {
+            "24h": "24 часа",
+            "7d": "7 дней",
+            "30d": "30 дней"
+        },
+        "totalRequests": "Всего запросов",
+        "inboundTraffic": "Входящий трафик",
+        "outboundTraffic": "Исходящий трафик",
+        "maxQPS": "Макс. QPS",
+        "4xxErrors": "4xx ошибки",
+        "5xxErrors": "5xx ошибки",
+        "blockCount": "Блокировок",
+        "attackIPCount": "Атакующих IP",
+        "realtimeQPS": "QPS в реальном времени",
+        "trafficTrend": "Тенденция трафика",
+        "requestsAndBlocks": "Тенденция запросов и блокировок",
+        "requests": "Запросы",
+        "blocks": "Блокировки"
+    },
+    "flowControl": {
+        "blockIpList": "Черный список IP",
+        "title": "Контроль трафика",
+        "pageTitle": "Управление контролем трафика",
+        "pageDescription": "Управление ограничениями частоты доступа на основе IP и списком заблокированных IP",
+        "configSettings": "Настройки контроля трафика",
+        "refresh": "Обновить",
+        "cleanup": "Очистить истекшие записи",
+        "cleaning": "Очистка...",
+        "filters": "Фильтры",
+        "filterByIP": "Фильтр по IP-адресу",
+        "filterByReason": "Фильтр по причине блокировки",
+        "clearFilters": "Очистить",
+        "expired": "Истек",
+        "untilUnblock": "до разблокировки",
+        "hours": " часов ",
+        "minutes": " минут ",
+        "seconds": " секунд",
+        "table": {
+            "ip": "IP-адрес",
+            "reason": "Причина блокировки",
+            "requestUri": "Путь запроса",
+            "blockedAt": "Заблокирован в",
+            "status": "Статус"
+        },
+        "status": {
+            "placeholder": "Статус",
+            "all": "Все",
+            "active": "Активен",
+            "expired": "Истек"
+        },
+        "reason": {
+            "all": "Все причины",
+            "highFrequencyVisit": "Высокочастотный доступ",
+            "highFrequencyAttack": "Высокочастотная атака",
+            "highFrequencyError": "Высокочастотные ошибки"
+        },
+        "pagination": {
+            "info": "Страница {{current}} из {{total}}, всего записей: {{count}}",
+            "previous": "Предыдущая",
+            "next": "Следующая"
+        },
+        "dialog": {
+            "title": "Конфигурация контроля трафика",
+            "description": "Настройте ограничения частоты доступа, частоты атак и частоты ошибок на основе IP для защиты системы от злонамеренных атак"
+        },
+        "visitLimit": {
+            "title": "Ограничение частоты посещений",
+            "description": "Ограничьте количество посещений с одного IP в указанном временном окне для предотвращения высокочастотного доступа"
+        },
+        "attackLimit": {
+            "title": "Ограничение частоты атак",
+            "description": "Ограничьте количество атак с одного IP в указанном временном окне для предотвращения злонамеренных атак"
+        },
+        "errorLimit": {
+            "title": "Ограничение частоты ошибок",
+            "description": "Ограничьте количество ошибочных ответов с одного IP в указанном временном окне для предотвращения злонамеренного зондирования"
+        },
+        "enabled": "Включить ограничение",
+        "enabledDescription": "Включить это правило ограничения",
+        "threshold": "Порог срабатывания",
+        "thresholdDescription": "Максимальное количество запросов в пределах временного окна статистики",
+        "attackThresholdDescription": "Максимальное количество атак в пределах временного окна статистики",
+        "errorThresholdDescription": "Максимальное количество ошибок в пределах временного окна статистики",
+        "statDuration": "Временное окно статистики",
+        "statDurationDescription": "Длина временного окна статистики (секунды)",
+        "blockDuration": "Длительность блокировки",
+        "blockDurationDescription": "Длительность блокировки после срабатывания ограничения (секунды)",
+        "burstCount": "Количество burst-запросов",
+        "burstCountDescription": "Количество разрешенных burst-запросов",
+        "paramsCapacity": "Емкость кэша",
+        "paramsCapacityDescription": "Максимальное количество IP для кэширования",
+        "updating": "Обновление...",
+        "updateConfig": "Обновить конфигурацию",
+        "toast": {
+            "updateSuccess": "Обновление успешно",
+            "configUpdated": "Конфигурация контроля трафика успешно обновлена",
+            "updateFailed": "Ошибка обновления",
+            "updateError": "Произошла ошибка при обновлении конфигурации",
+            "cleanupSuccess": "Очистка успешна",
+            "cleanupMessage": "Очищено {{count}} истекших записей",
+            "cleanupFailed": "Ошибка очистки",
+            "cleanupError": "Произошла ошибка при очистке истекших записей"
+        }
+    },
+    "securityDashboard": {
+        "title": "Панель защиты безопасности",
+        "stats": {
+            "blockCount24h": "Блокировок за 24ч",
+            "attackIPCount24h": "Атакующих IP за 24ч",
+            "totalRequests24h": "Всего запросов за 24ч"
+        },
+        "attackIPList": {
+            "title": "Атакующие IP за 24ч",
+            "noData": "Нет данных об атакующих IP",
+            "attackCount": "раз"
+        },
+        "realtimeAttacks": {
+            "title": "Атаки в реальном времени",
+            "noData": "Нет данных об атаках в реальном времени"
+        },
+        "qpsChart": {
+            "title": "Монитор QPS в реальном времени",
+            "tooltip": "{{time}}: {{value}} QPS"
+        }
+    }
+}
