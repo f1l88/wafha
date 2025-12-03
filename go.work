@@ -1,7 +1,7 @@
 go 1.24.1
 
 use (
-	./coraza-spoa
+	./coraza-spoa-0.5.0
 	./pkg
 	./server
 )

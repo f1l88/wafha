@@ -116,7 +116,7 @@ func InitConfig() error {
 		}
 	}
 
-	// 前端配置
+	// Front-end configuration
 	if env := os.Getenv("DISABLE_WEB"); env != "" {
 		Global.DisableWeb = env == "true"
 	}

@@ -210,7 +210,7 @@ func NewMemoryIPRecorderWithConfig(config RecorderConfig, logger zerolog.Logger)
 		logger.Info().
 			Int("capacity", config.Capacity).
 			Int("shards", shardCount).
-			Msg("创建新的MemoryIPRecorder实例")
+			Msg("Create a new MemoryIPRecorder instance")
 	})
 
 	return memoryIPRecorderInstance
@@ -713,7 +713,7 @@ func NewMongoIPRecorderWithConfig(client *mongo.Client, database string, config 
 		go recorder.adaptiveBatchWriteLoop()
 
 		mongoIPRecorderInstance = recorder
-		logger.Info().Msg("创建新的MongoIPRecorder实例")
+		logger.Info().Msg("Create a new MongoIPRecorder instance")
 	})
 
 	return mongoIPRecorderInstance

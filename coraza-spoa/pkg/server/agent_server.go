@@ -28,7 +28,7 @@ var globalLogger = zerolog.New(os.Stderr).With().Timestamp().Logger()
 type ServerState int
 
 const (
-	ServerStopped ServerState = iota // 服务已停止
+	ServerStopped ServerState = iota // Service has stopped
 	ServerRunning                    // 服务正在运行
 	ServerError                      // 服务出错
 )
@@ -140,14 +140,14 @@ func (s *AgentServerImpl) Start() error {
 		// 创建日志记录器
 		appLogger, err := logConfig.NewLogger()
 		if err != nil {
-			s.logger.Warn().Err(err).Str("app", appConfig.Name).Msg("使用默认日志记录器")
+			s.logger.Warn().Err(err).Str("app", appConfig.Name).Msg("Use the default logger")
 			appLogger = globalLogger
 		}
 
-		// 创建内部 AppConfig
+		// Create internal AppConfig
 		internalAppConfig := internal.AppConfig{
 			Directives:     appConfig.Directives,
-			ResponseCheck:  globalConfig.IsResponseCheck, // 使用全局响应检查设置
+			ResponseCheck:  globalConfig.IsResponseCheck, // Use global response to check settings
 			Logger:         appLogger,
 			TransactionTTL: appConfig.TransactionTTL,
 		}
@@ -190,7 +190,7 @@ func (s *AgentServerImpl) Start() error {
 
 	// 在后台goroutine中启动服务
 	go func() {
-		s.logger.Info().Msg("启动 coraza-spoa 服务, 监听地址: " + s.address + " " + s.network)
+		s.logger.Info().Msg("Start the coraza-spoa service and listen to the address: " + s.address + " " + s.network)
 		err := s.agent.Serve(l)
 
 		// 只有当它不是正常关闭时才记录为错误
@@ -199,10 +199,10 @@ func (s *AgentServerImpl) Start() error {
 			s.state = ServerError
 			s.lastError = err
 			s.mu.Unlock()
-			s.logger.Error().Err(err).Msg("监听器出错，非预期错误")
+			s.logger.Error().Err(err).Msg("Listener error, unexpected error")
 		} else if err != nil {
 			// 预期错误 接受到 上下文取消时，s.agent.Serve(l) 会抛出前缀为 'accepting conn:' 的错误
-			s.logger.Info().Msg("监听器已正常关闭, 预期错误: " + err.Error())
+			s.logger.Info().Msg("The listener has been turned off normally, an error is expected: " + err.Error())
 		}
 	}()
 
@@ -239,7 +239,7 @@ func (s *AgentServerImpl) Stop() error {
 	s.ctx = nil
 
 	s.state = ServerStopped
-	s.logger.Info().Msg("服务已停止")
+	s.logger.Info().Msg("Service has stopped")
 	return nil
 }
 

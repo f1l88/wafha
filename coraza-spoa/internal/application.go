@@ -44,8 +44,8 @@ type AppConfig struct {
 type ApplicationOptions struct {
 	MongoConfig          *MongoConfig          // MongoDB配置，用于日志存储
 	GeoIPConfig          *GeoIP2Options        // GeoIP配置，用于IP地理位置处理
-	RuleEngineDbConfig   *MongoDBConfig        // 规则引擎数据库配置
-	FlowControllerConfig *FlowControllerConfig // 流量控制器配置
+	RuleEngineDbConfig   *MongoDBConfig        // Rule engine database configuration
+	FlowControllerConfig *FlowControllerConfig // Flow controller configuration
 }
 
 // FlowControllerConfig 流量控制器配置
@@ -793,7 +793,7 @@ func (a AppConfig) NewApplicationWithContext(ctx context.Context, options Applic
 		app.logStore = logStore
 	}
 
-	// 根据规则引擎数据库配置初始化规则引擎
+	// Initialize the rule engine according to the rule engine database configuration
 	if options.RuleEngineDbConfig != nil && options.RuleEngineDbConfig.MongoClient != nil {
 		ruleEngine := NewRuleEngine()
 		ruleEngine.InitMongoConfig(options.RuleEngineDbConfig)
@@ -810,7 +810,7 @@ func (a AppConfig) NewApplicationWithContext(ctx context.Context, options Applic
 			a.Logger,
 		)
 		if err != nil {
-			a.Logger.Warn().Err(err).Msg("初始化IP处理器失败，将使用空实现")
+			a.Logger.Warn().Err(err).Msg("Failed to initialize the IP processor, an empty implementation will be used")
 			app.ipProcessor = NewNullIPProcessor()
 		} else {
 			app.ipProcessor = processor
@@ -831,7 +831,7 @@ func (a AppConfig) NewApplicationWithContext(ctx context.Context, options Applic
 		)
 		app.ipRecorder = ipRecorder
 
-		// 创建流量控制器
+		// Create a flow controller
 		flowController, err := flowcontroller.NewFlowControllerFromMongoConfig(
 			options.FlowControllerConfig.Client,
 			options.FlowControllerConfig.Database,
@@ -839,11 +839,11 @@ func (a AppConfig) NewApplicationWithContext(ctx context.Context, options Applic
 			ipRecorder,
 		)
 		if err != nil {
-			a.Logger.Warn().Err(err).Msg("初始化流量控制器失败")
+			a.Logger.Warn().Err(err).Msg("Failed to initialize the flow controller")
 		} else {
 			app.flowController = flowController
 			if err := app.flowController.Initialize(); err != nil {
-				a.Logger.Warn().Err(err).Msg("流量控制器初始化失败")
+				a.Logger.Warn().Err(err).Msg("Flow controller initialization failed")
 			}
 		}
 	}

@@ -13,13 +13,16 @@ import (
 
 // Setup configures all the routes for the application
 func Setup(route *gin.Engine, db *mongo.Database) {
-	// 基础中间件
+	// ===== Front-end static resource hosting=====
+	SetStaticFileRouter(route)
+
+	// Basic middleware
 	route.Use(middleware.RequestID())
 	route.Use(middleware.Logger())
 	route.Use(middleware.Cors())
 	route.Use(gin.CustomRecovery(middleware.CustomErrorHandler))
 
-	// 创建仓库
+	// Create a warehouse
 	userRepo := repository.NewUserRepository(db)
 	roleRepo := repository.NewRoleRepository(db)
 	siteRepo := repository.NewSiteRepository(db)
@@ -30,7 +33,7 @@ func Setup(route *gin.Engine, db *mongo.Database) {
 	ruleRepo := repository.NewMicroRuleRepository(db)
 	blockedIPRepo := repository.NewBlockedIPRepository(db)
 
-	// 创建服务
+	// Create service
 	authService := service.NewAuthService(userRepo, roleRepo)
 	siteService := service.NewSiteService(siteRepo)
 	wafLogService := service.NewWAFLogService(wafLogRepo)
@@ -41,7 +44,8 @@ func Setup(route *gin.Engine, db *mongo.Database) {
 	ruleService := service.NewMicroRuleService(ruleRepo)
 	statsService := service.NewStatsService(wafLogRepo)
 	blockedIPService := service.NewBlockedIPService(blockedIPRepo)
-	// 创建控制器
+
+	// Create a controller
 	authController := controller.NewAuthController(authService)
 	siteController := controller.NewSiteController(siteService)
 	wafLogController := controller.NewWAFLogController(wafLogService)
@@ -52,22 +56,23 @@ func Setup(route *gin.Engine, db *mongo.Database) {
 	ruleController := controller.NewMicroRuleController(ruleService)
 	statsController := controller.NewStatsController(runnerService, statsService)
 	blockedIPController := controller.NewBlockedIPController(blockedIPService)
-	// 将仓库添加到上下文中，供中间件使用
+
+	// Add the warehouse to the context for middleware use
 	route.Use(func(c *gin.Context) {
 		c.Set("userRepo", userRepo)
 		c.Set("roleRepo", roleRepo)
 		c.Next()
 	})
 
-	// 健康检查端点
+	// Health check endpoint
 	route.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	// API v1 路由
+	// API v1 routing
 	api := route.Group("/api/v1")
 
-	// 认证相关路由 - 不需要权限检查
+	// Authentication related routes-no permission check required
 	auth := api.Group("/auth")
 	{
 		auth.POST("/login", authController.Login)
@@ -217,7 +222,4 @@ func Setup(route *gin.Engine, db *mongo.Database) {
 		// 重启系统 - 需要system:restart权限
 		systemRoutes.POST("/restart", middleware.HasPermission(model.PermSystemRestart), nil)
 	}
-
-	// ===== 前端静态资源托管 =====
-	SetStaticFileRouter(route)
 }

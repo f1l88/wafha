@@ -15,13 +15,13 @@ import (
 )
 
 const (
-	SystemDefaultBlacklistName = "system_default_blacklist" // 系统默认黑名单组名称
+	SystemDefaultBlacklistName = "system_default_blacklist" // System default blacklist group name
 )
 
 var (
-	ErrIPGroupNotFound    = errors.New("IP组不存在")
-	ErrIPGroupNameExists  = errors.New("IP组名称已存在")
-	ErrSystemIPGroupNoMod = errors.New("系统默认IP组不允许删除")
+	ErrIPGroupNotFound    = errors.New("IP group does not exist")
+	ErrIPGroupNameExists  = errors.New("the IP group name already exists")
+	ErrSystemIPGroupNoMod = errors.New("the system default IP group is not allowed to be deleted")
 )
 
 // IPGroupService IP组服务接口
@@ -175,18 +175,18 @@ func (s *IPGroupServiceImpl) DeleteIPGroup(ctx context.Context, id bson.ObjectID
 
 	// 检查是否是系统默认IP组
 	if ipGroup.Name == SystemDefaultBlacklistName {
-		s.logger.Warn().Str("id", id.Hex()).Msg("尝试删除系统默认IP组")
+		s.logger.Warn().Str("id", id.Hex()).Msg("Try to delete the system default IP group")
 		return ErrSystemIPGroupNoMod
 	}
 
 	// 删除IP组
 	err = s.ipGroupRepo.DeleteIPGroup(ctx, id)
 	if err != nil {
-		s.logger.Error().Err(err).Str("id", id.Hex()).Msg("删除IP组失败")
+		s.logger.Error().Err(err).Str("id", id.Hex()).Msg("Failed to delete IP group")
 		return err
 	}
 
-	s.logger.Info().Str("id", id.Hex()).Msg("IP组删除成功")
+	s.logger.Info().Str("id", id.Hex()).Msg("The IP group was deleted successfully")
 	return nil
 }
 
@@ -196,10 +196,10 @@ func (s *IPGroupServiceImpl) AddIPToBlacklist(ctx context.Context, ip string) er
 	ipGroup, err := s.ipGroupRepo.GetIPGroupByName(ctx, SystemDefaultBlacklistName)
 	if err != nil {
 		if errors.Is(err, repository.ErrIPGroupNotFound) {
-			s.logger.Error().Msg("系统默认黑名单组不存在")
+			s.logger.Error().Msg("The system default blacklist group does not exist")
 			return ErrIPGroupNotFound
 		}
-		s.logger.Error().Err(err).Msg("获取系统默认黑名单组失败")
+		s.logger.Error().Err(err).Msg("Failed to obtain the system default blacklist group")
 		return err
 	}
 

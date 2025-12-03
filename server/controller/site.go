@@ -80,7 +80,7 @@ func (c *SiteControllerImpl) CreateSite(ctx *gin.Context) {
 	response.Success(ctx, "站点创建成功", site)
 }
 
-// GetSites 获取站点列表
+// GetSites Get a list of sites
 //
 //	@Summary		获取站点列表
 //	@Description	获取所有站点配置列表

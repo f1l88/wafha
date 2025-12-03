@@ -1,77 +1,299 @@
-<h1>
-  <img src="https://coraza.io/images/logo_shield_only.png" align="left" height="46px" alt=""/>
-  <span>Coraza SPOA - HAProxy Web Application Firewall</span>
-</h1>
+# WAFHA
 
-[![Code Linting](https://github.com/corazawaf/coraza-spoa/actions/workflows/lint.yaml/badge.svg)](https://github.com/corazawaf/coraza-spoa/actions/workflows/lint.yaml)
-[![CodeQL Scanning](https://github.com/corazawaf/coraza-spoa/actions/workflows/codeql.yaml/badge.svg)](https://github.com/corazawaf/coraza-spoa/actions/workflows/codeql.yaml)
+<div align="center">
+<a href="https://deepwiki.com/HUAHUAI23/RuiQi"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" width="160" height="30"></a>
+  <img src="https://img.shields.io/badge/Go-1.24.1-00ADD8?style=flat&logo=go" alt="Go Version" width="140" height="30">
+  <img src="https://img.shields.io/badge/HAProxy-3.0-green?style=flat&logo=haproxy" alt="HAProxy" width="140" height="30">
+  <img src="https://img.shields.io/badge/OWASP-Coraza-blue?style=flat" alt="Coraza WAF" width="140" height="30">
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat" alt="License" width="140" height="30">
+</div>
 
-Coraza SPOA is a system daemon which brings the Coraza Web Application Firewall (WAF) as a backing service for HAProxy. It is written in Go, Coraza supports ModSecurity SecLang rulesets and is 100% compatible with the OWASP Core Rule Set v4.
+<br>
 
-HAProxy includes a [Stream Processing Offload Engine](https://www.haproxy.com/blog/extending-haproxy-with-the-stream-processing-offload-engine) [SPOE](https://raw.githubusercontent.com/haproxy/haproxy/master/doc/SPOE.txt) to offload request processing to a Stream Processing Offload Agent (SPOA). Coraza SPOA embeds the [Coraza Engine](https://github.com/corazawaf/coraza), loads the ruleset and filters http requests or application responses which are passed forwarded by HAProxy for inspection.
+A modern web application firewall (WAF) management system built on top of [HAProxy](https://www.haproxy.org/) and [OWASP Coraza WAF](https://github.com/corazawaf/coraza) with the [Coraza SPOA](https://github.com/corazawaf/coraza-spoa) integration. This system provides a comprehensive backend API for managing HAProxy configurations, Coraza WAF rules, and traffic inspection.
 
-## Compilation
+run the application in less than 30 seconds,default username: **admin**,default password: **admin123**
 
-### Build
+## 📺 Demo Video
 
-The command `go run mage.go build` will compile the source code and produce the executable file `coraza-spoa` inside the `build/` folder.
+https://github.com/user-attachments/assets/f74000d7-d229-4d00-843b-1ba28caeb13d
 
-## Configuration
+## 📸 RuiQi WAF Interface Showcase
 
-## Coraza SPOA
+<div align="center">
+  <table cellspacing="0" cellpadding="10" style="border-collapse: separate; border-spacing: 15px; background-color: #f8f9fa;">
+    <tr>
+      <td align="center" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <img width="767" alt="RuiQi WAF Dashboard" src="./doc/image/waf-1.png" style="border-radius: 6px; max-width: 100%;">
+      </td>
+      <td align="center" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <img width="767" alt="RuiQi WAF Rule Management" src="./doc/image/waf-2.png" style="border-radius: 6px; max-width: 100%;">
+      </td>
+    </tr>
+    <tr>
+      <td align="center" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <img width="767" alt="RuiQi WAF Analytics" src="./doc/image/waf-3.png" style="border-radius: 6px; max-width: 100%;">
+      </td>
+      <td align="center" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <img width="767" alt="RuiQi WAF Security Config" src="./doc/image/waf-4.png" style="border-radius: 6px; max-width: 100%;">
+      </td>
+    </tr>
+  </table>
+</div>
 
-The example configuration file is [example/coraza-spoa.yaml](https://github.com/corazawaf/coraza-spoa/blob/main/example/coraza-spoa.yaml), you can copy it and modify the related configuration information. You can start the service by running the command:
+## Core Architecture
+
+Simple WAF implements a modular architecture with HAProxy at the front handling traffic and multiple security engines providing protection:
+
+1. **Coraza WAF Engine**: OWASP ModSecurity-compatible filtering
+2. **MicroEngine**: Rule-based matching engine for IP filtering, URL checking, and complex conditional logic
+3. **Geographic Analysis**: Location-based traffic filtering
+4. **Rate Limiting**: Traffic control and request throttling
+
+The system uses a plugin architecture that allows for continuous enhancement with new security modules.
+
+```mermaid
+graph TD
+    Client[Client] -->|HTTP Request| HAProxy
+    HAProxy -->|TCP Connection| SPOE[Coraza SPOE Agent]
+    SPOE -->|Message Type Recognition| TypeCheck
+    TypeCheck -->|coraza-req| ReqHandler[Request Handler]
+    TypeCheck -->|coraza-res| ResHandler[Response Handler]
+    ReqHandler -->|Get App Name| ReqApp[Find Application]
+    ResHandler -->|Get App Name| ResApp[Find Application]
+    ReqApp -->|Process Request| ReqProcess[Request Processor]
+    ResApp -->|Process Response| ResProcess[Response Processor]
+    ReqProcess --> Return[Return Results to HAProxy]
+    ResProcess --> Return
+    HAProxy -->|Apply Action| Action[Allow/Deny/Log]
+    Action -->|Response| Client
+```
+
+### SPOE Communication Workflow
 
 ```
-coraza-spoa -config /etc/coraza-spoa/coraza-spoa.yaml
+[HAProxy Request] → [internal.Agent.Serve(Listener)]
+                          ↓
+                   Create spop.Agent
+                   agent := spop.Agent{
+                       Handler: a,
+                       BaseContext: a.Context,
+                   }
+                          ↓
+                [spop.Agent.Serve(Listener)]
+                          ↓
+                   Accept new connections
+                   nc, err := l.Accept()
+                          ↓
+                   Create protocol handler
+                   p := newProtocolClient(ctx, nc, as, handler)
+                          ↓
+                   Start goroutine for connection
+                   go func() {
+                       p.Serve()
+                   }()
+                          ↓
+                [protocolClient.Serve]
+                   Process frames in connection
+                          ↓
+                [frameHandler processes Frame]
+                   Dispatch based on frame type
+                          ↓
+                [onNotify handles messages]
+                   Create message scanner and objects
+                   Call Handler.HandleSPOE
+                          ↓
+                [internal.Agent.HandleSPOE processing]
+                          ↓
+                   Parse message type (coraza-req/coraza-res)
+                          ↓
+                   Get application name
+                          ↓
+                   Find Application
+                          ↓
+                   Execute message handler
+                          ↓
+                   Process return results
+                          ↓
+                [Return to HAProxy]
 ```
 
-## HAProxy SPOE
+## Features
 
-Configure HAProxy to exchange messages with the SPOA. The example SPOE configuration file is [coraza.cfg](https://github.com/corazawaf/coraza-spoa/blob/main/example/haproxy/coraza.cfg), you can copy it and modify the related configuration information. Default directory to place the config is `/etc/haproxy/coraza.cfg`.
+- **Multi-Engine Protection**
 
-```ini
-# /etc/haproxy/coraza.cfg
-spoe-agent coraza-agent
-    ...
-    use-backend coraza-spoa
+  - **Coraza WAF Engine**:
 
-spoe-message coraza-req
-    args app=str(sample_app) id=unique-id src-ip=src ...
+    - OWASP Core Rule Set (CRS) support
+    - ModSecurity SecLang rule compatibility
+    - Custom rule management
+
+  - **MicroEngine**:
+
+    - Rule-based matching for IP, URL, and request path
+    - Complex condition combinations (AND/OR logic)
+    - IP blacklist/whitelist with CIDR support
+    - Efficient regex matching with caching
+
+  - **Geographic Analysis**:
+
+    - Country and region-based filtering
+    - Geographic attack visualization
+
+  - **Traffic Control**:
+    - Rate limiting and request throttling
+    - Connection control mechanisms
+
+- **HAProxy Integration**
+
+  - Full HAProxy lifecycle management (start, stop, restart)
+  - Dynamic configuration generation
+  - Real-time status monitoring
+
+- **Advanced Security**
+
+  - HTTP request inspection
+  - HTTP response inspection
+  - Real-time attack detection and prevention
+  - RBAC user permission system
+
+- **Monitoring and Logging**
+
+  - WAF attack logs and analytics
+  - Traffic statistics
+  - Performance metrics
+
+- **API-Driven Workflow**
+  - RESTful API with Gin framework
+  - Swagger/ReDoc API documentation
+  - JWT authentication
+
+## Prerequisites
+
+- Go 1.24.1 or higher
+- Node.js 23.10.0 and pnpm 10.11.0 (for frontend development)
+- HAProxy 3.0 (for local development)
+- MongoDB 6.0
+- Docker and Docker Compose (for containerized deployment)
+
+## Local Development
+
+change auth form for web
+web/src/store/auth.ts isAuthenticated: true,
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/HUAHUAI23/RuiQi.git
+cd RuiQi
 ```
 
-The application name from `config.yaml` must match the `app=` name.
+2. Setup the frontend development environment:
 
-The backend defined in `use-backend` must match a `haproxy.cfg` backend which directs requests to the SPOA daemon reachable via `127.0.0.1:9000`.
-
-Instead of the hard coded application name `str(sample_app)` you can use some HAProxy variables. For example, frontend name `fe_name`.
-
-## HAProxy
-
-Configure HAProxy with a frontend, which contains a `filter` statement to forward requests to the SPOA and deny based on the returned action. Also add a backend section, which is referenced by use-backend in `coraza.cfg`.
-
-```haproxy
-# /etc/haproxy/haproxy.cfg
-frontend web
-    filter spoe engine coraza config /etc/haproxy/coraza.cfg
-    ...
-    http-request deny deny_status 403 hdr waf-block "request" if { var(txn.coraza.action) -m str deny }
-    ...
-
-backend coraza-spoa
-    mode tcp
-    option spop-check
-    server s1 127.0.0.1:9000 check
+```bash
+cd server/web
+pnpm install
+pnpm dev # For development mode with hot reload
+# or
+pnpm build # For production build
+cd ../..
 ```
 
-A comprehensive HAProxy configuration example can be found in [example/haproxy/coraza.cfg](https://github.com/corazawaf/coraza-spoa/blob/main/example/haproxy/coraza.cfg).
+3. Configure backend environment:
 
-Because, in the SPOE configuration file (coraza.cfg), we declare to use the backend [coraza-spoa](https://github.com/corazawaf/coraza-spoa/blob/main/example/haproxy/coraza.cfg#L13) to communicate with the service, so we need also to define it in the [HAProxy file](https://github.com/corazawaf/coraza-spoa/blob/main/example/haproxy/haproxy.cfg#L50):
+```bash
+cp server/.env.template server/.env
+# Edit .env with your configurations
+```
 
-If you intend to access coraza-spoa service from another machine, remember to change the binding networking directives (IPAddressAllow/IPAddressDeny) in [contrib/coraza-spoa.service](https://github.com/corazawaf/coraza-spoa/blob/main/contrib/coraza-spoa.service)
+4. Run the Go backend service:
 
-## Docker
+```bash
+go work use ./coraza-spoa ./pkg ./server
+cd server
+go run main.go
+```
 
-- Build the coraza-spoa image `cd ./example ; docker compose build`
-- Run haproxy, coraza-spoa and a mock server `docker compose up`
-- Perform a request which gets blocked by the WAF: `curl http://localhost:8080/\?x\=/etc/passwd`
+The development server will start with:
+
+- API server: `http://localhost:2333/api/v1`
+- Swagger UI: `http://localhost:2333/swagger/index.html`
+- ReDoc UI: `http://localhost:2333/redoc`
+- Frontend: `http://localhost:2333/`
+
+## Docker Deployment
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/HUAHUAI23/RuiQi.git
+cd RuiQi
+```
+
+2. Build the Docker image:
+
+```bash
+docker build -t ruiqi-waf:latest .
+```
+
+3. Run as a standalone container:
+
+```bash
+docker run -p 2333:2333 -p 8080:8080 -p 443:443 -p 80:80 -p 9443:9443 -p 8404:8404 ruiqi-waf:latest
+```
+
+4. Alternatively, use Docker Compose for a complete deployment with MongoDB:
+
+```bash
+# Edit docker-compose.yaml to configure environment variables if needed
+docker-compose up -d
+```
+
+This will start both MongoDB and Simple WAF services with all required configurations.
+
+## Roadmap
+
+Our project features and development progress:
+
+1. **Monitoring Dashboard**
+
+   - [x] Real-time attack visualization map
+   - [x] Geographic attack origin analytics
+   - [ ] Comprehensive security metrics dashboard
+
+2. **Advanced Traffic Control**
+
+   - [x] Fine-grained rate limiting
+   - [x] Request frequency analysis
+   - [ ] Adaptive throttling based on traffic patterns
+
+3. **Alert Integration**
+
+   - [ ] Webhook alert system
+   - [ ] Integration with popular messaging platforms
+   - [ ] Customizable alert templates
+
+4. **AI Security Analysis**
+
+   - [ ] ML-based attack pattern detection
+   - [ ] AI-assisted rule generation
+   - [ ] Automated ModSecurity directive creation
+   - [ ] MCP (Model Control Plane) integration
+
+5. **Enhanced Rule Management**
+   - [ ] OWASP Top 10 specific rule templates
+   - [ ] Rule effectiveness scoring
+   - [ ] One-click protection profiles
+
+For detailed technical documentation on engine architecture and implementation, see the proposals in the `/doc/proposal` directory.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+## Acknowledgements
+
+- [OWASP Coraza WAF](https://github.com/corazawaf/coraza)
+- [Coraza SPOA](https://github.com/corazawaf/coraza-spoa)
+- [HAProxy](https://www.haproxy.org/)
+- [Go Gin Framework](https://github.com/gin-gonic/gin)

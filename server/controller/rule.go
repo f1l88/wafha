@@ -149,10 +149,10 @@ func (c *MicroRuleControllerImpl) GetMicroRules(ctx *gin.Context) {
 	page := ctx.DefaultQuery("page", "1")
 	size := ctx.DefaultQuery("size", "10")
 
-	c.logger.Info().Str("page", page).Str("size", size).Msg("获取微规则列表请求")
+	c.logger.Info().Str("page", page).Str("size", size).Msg("Request to get a list of micro-rules")
 	rules, total, err := c.ruleService.GetMicroRules(ctx, page, size)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("获取微规则列表失败")
+		c.logger.Error().Err(err).Msg("Failed to obtain a list of micro-rules")
 		response.InternalServerError(ctx, err, false)
 		return
 	}
@@ -162,15 +162,15 @@ func (c *MicroRuleControllerImpl) GetMicroRules(ctx *gin.Context) {
 	for i, rule := range rules {
 		resp, err := ConvertToResponse(&rule)
 		if err != nil {
-			c.logger.Error().Err(err).Msg("转换响应对象失败")
+			c.logger.Error().Err(err).Msg("Failed to convert the response object")
 			response.InternalServerError(ctx, err, false)
 			return
 		}
 		responses[i] = resp
 	}
 
-	c.logger.Info().Int64("total", total).Msg("获取微规则列表成功")
-	response.Success(ctx, "获取微规则列表成功", gin.H{
+	c.logger.Info().Int64("total", total).Msg("Successfully obtained the list of micro-rules")
+	response.Success(ctx, "Successfully obtained the list of micro-rules", gin.H{
 		"total": total,
 		"items": responses,
 	})

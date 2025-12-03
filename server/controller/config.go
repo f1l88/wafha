@@ -95,7 +95,7 @@ func (c *ConfigControllerImpl) PatchConfig(ctx *gin.Context) {
 			response.NotFound(ctx, err)
 			return
 		}
-		c.logger.Error().Err(err).Msg("更新配置失败")
+		c.logger.Error().Err(err).Msg("Update configuration failed")
 		response.InternalServerError(ctx, err, false)
 		return
 	}
@@ -103,7 +103,7 @@ func (c *ConfigControllerImpl) PatchConfig(ctx *gin.Context) {
 	// 转换为DTO响应
 	configResponse := mapConfigToDTO(cfg)
 
-	response.Success(ctx, "配置更新成功", configResponse)
+	response.Success(ctx, "The configuration update was successful", configResponse)
 }
 
 // mapConfigToDTO 将模型转换为DTO

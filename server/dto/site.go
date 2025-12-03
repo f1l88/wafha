@@ -6,22 +6,22 @@ import (
 	"github.com/HUAHUAI23/RuiQi/server/model"
 )
 
-// CreateSiteRequest 创建站点请求
-// @Description 创建站点的请求参数
+// CreateSiteRequest Create a site request
+// @Description Request parameters for creating a site
 type CreateSiteRequest struct {
-	Name         string          `json:"name" binding:"required" example:"my-site"`                                      // 站点名称
-	Domain       string          `json:"domain" binding:"required,domain" example:"example.com"`                         // 域名
-	ListenPort   int             `json:"listenPort" binding:"required,min=1,max=65535" example:"8080"`                   // 监听端口
-	EnableHTTPS  bool            `json:"enableHTTPS" example:"false"`                                                    // 是否启用HTTPS
-	Certificate  *CertificateDTO `json:"certificate,omitempty" binding:"omitempty,required_if=EnableHTTPS true"`         // 证书信息
-	Backend      BackendDTO      `json:"backend" binding:"required"`                                                     // 后端服务器配置
-	WAFEnabled   bool            `json:"wafEnabled" example:"false"`                                                     // 是否启用WAF
-	WAFMode      string          `json:"wafMode" binding:"omitempty,oneof=protection observation" example:"observation"` // WAF模式
-	ActiveStatus bool            `json:"activeStatus" example:"true"`                                                    // 站点状态
+	Name         string          `json:"name" binding:"required" example:"my-site"`                                      // Site name
+	Domain       string          `json:"domain" binding:"required,domain" example:"example.com"`                         // domain name
+	ListenPort   int             `json:"listenPort" binding:"required,min=1,max=65535" example:"8080"`                   // Monitor port
+	EnableHTTPS  bool            `json:"enableHTTPS" example:"false"`                                                    // Enable HTTPS
+	Certificate  *CertificateDTO `json:"certificate,omitempty" binding:"omitempty,required_if=EnableHTTPS true"`         // Certificate information
+	Backend      BackendDTO      `json:"backend" binding:"required"`                                                     // Back-end server configuration
+	WAFEnabled   bool            `json:"wafEnabled" example:"false"`                                                     // Enable WAF
+	WAFMode      string          `json:"wafMode" binding:"omitempty,oneof=protection observation" example:"observation"` // WAF mode
+	ActiveStatus bool            `json:"activeStatus" example:"true"`                                                    // Site status
 }
 
-// UpdateSiteRequest 更新站点请求
-// @Description 更新站点的请求参数
+// UpdateSiteRequest Update site request
+// @Description Update the request parameters of the site
 type UpdateSiteRequest struct {
 	Name         string          `json:"name,omitempty" binding:"omitempty" example:"my-site"`                           // 站点名称
 	Domain       string          `json:"domain,omitempty" binding:"omitempty,domain" example:"example.com"`              // 域名

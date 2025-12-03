@@ -84,7 +84,7 @@ func (c *SimpleCondition) Match(eng *RuleEngine, ip, url, path string) (bool, er
 	case TargetPath:
 		return eng.matchPath(c, path)
 	default:
-		return false, fmt.Errorf("不支持的目标类型: %s", c.Target)
+		return false, fmt.Errorf("unsupported target types: %s", c.Target)
 	}
 }
 
@@ -101,7 +101,7 @@ type CompositeCondition struct {
 // Match 实现Matcher接口
 func (c *CompositeCondition) Match(eng *RuleEngine, ip, url, path string) (bool, error) {
 	if len(c.parsedConditions) == 0 {
-		return false, fmt.Errorf("复合条件未初始化")
+		return false, fmt.Errorf("composite condition uninitialized")
 	}
 
 	var result bool
@@ -194,7 +194,7 @@ type MongoDBConfig struct {
 	IPGroupCollection string // IP组集合名称
 }
 
-// RuleEngine 规则引擎
+// RuleEngine
 type RuleEngine struct {
 	Rules       []Rule                    `json:"rules"`     // 所有规则列表
 	IPGroups    map[string]*model.IPGroup `json:"ip_groups"` // IP组映射表
@@ -203,12 +203,12 @@ type RuleEngine struct {
 	mongoConfig *MongoDBConfig            // MongoDB配置
 }
 
-// NewRuleEngine 创建规则引擎
+// NewRuleEngine Create a rule engine
 func NewRuleEngine() *RuleEngine {
 	return &RuleEngine{
 		Rules:    make([]Rule, 0),
 		IPGroups: make(map[string]*model.IPGroup),
-		// TODO: 使用 LRU 优化，设置缓存过期时间，避免缓存过大
+		// TODO: Use LRU optimization to set the cache expiration time to avoid excessive cache
 		regexCache: make(map[string]*regexp.Regexp),
 		factory:    ConditionFactory{},
 	}
@@ -299,10 +299,10 @@ func (e *RuleEngine) LoadRulesFromMongoDB() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// 检查并创建默认规则逻辑
+	// Check and create default rule logic
 	defaultRuleCount, err := collection.CountDocuments(ctx, bson.D{{Key: "name", Value: "system_default_ip_block"}})
 	if err != nil {
-		return fmt.Errorf("检查默认规则是否存在失败: %v", err)
+		return fmt.Errorf("check if the default rule failed: %v", err)
 	}
 
 	// 如果默认规则不存在，则创建
@@ -377,7 +377,7 @@ func (e *RuleEngine) LoadRulesFromMongoDB() error {
 	return nil
 }
 
-// LoadAllFromMongoDB 从MongoDB加载所有规则和IP组
+// LoadAllFromMongoDB Load all rules and IP groups from MongoDB
 func (e *RuleEngine) LoadAllFromMongoDB() error {
 	if err := e.LoadIPGroupsFromMongoDB(); err != nil {
 		return err
@@ -402,7 +402,7 @@ func (e *RuleEngine) AddIPGroup(group model.IPGroup) error {
 	return nil
 }
 
-// LoadRulesFromJSON 从JSON加载规则 - 修改加载逻辑，增加序列号处理
+// LoadRulesFromJSON Loading rules from JSON-modify the loading logic and add serial number processing
 // BUG type transform error bson raw and json raw
 func (e *RuleEngine) LoadRulesFromJSON(data []byte) error {
 	var rules []Rule
@@ -646,7 +646,7 @@ func matchIPFuzzy(ip, pattern string) (bool, error) {
 	patternParts := strings.Split(pattern, ".")
 
 	if len(ipParts) != 4 || len(patternParts) != 4 {
-		return false, fmt.Errorf("IP格式错误")
+		return false, fmt.Errorf("IP format error")
 	}
 
 	for i := 0; i < 4; i++ {

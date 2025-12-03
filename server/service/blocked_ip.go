@@ -56,12 +56,12 @@ func (s *BlockedIPServiceImpl) GetBlockedIPs(ctx context.Context, req *dto.Block
 		Str("ip", req.IP).
 		Str("reason", req.Reason).
 		Str("status", req.Status).
-		Msg("获取封禁IP列表请求")
+		Msg("Request to obtain a list of blocked IPS")
 
 	// 调用仓库层
 	records, total, err := s.blockedIPRepo.GetBlockedIPs(ctx, req)
 	if err != nil {
-		s.logger.Error().Err(err).Msg("获取封禁IP列表失败")
+		s.logger.Error().Err(err).Msg("Failed to obtain the blocked IP list")
 		return nil, err
 	}
 

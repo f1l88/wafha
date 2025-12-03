@@ -41,30 +41,30 @@ const (
 
 type HAProxyServiceImpl struct {
 	ConfigBaseDir      string
-	HAProxyConfigFile  string // 配置文件路径
-	HaproxyBin         string // HAProxy二进制文件路径
+	HAProxyConfigFile  string // Configuration file path
+	HaproxyBin         string // HAProxy binary file path
 	BackupsNumber      int
-	CertDir            string // 证书目录
-	TransactionDir     string // 事务目录
-	SpoeDir            string // SPOE目录
-	SpoeTransactionDir string // SPOE事务目录
-	SocketFile         string // 套接字文件路径
-	PidFile            string // PID文件路径
-	SpoeConfigFile     string // SPOE配置文件路径
-	SpoeAgentAddress   string // SPOE代理地址
-	SpoeAgentPort      int64  // SPOE代理端口
+	CertDir            string // Certificate table of Contents
+	TransactionDir     string // Transaction directory
+	SpoeDir            string // SPOE Catalog
+	SpoeTransactionDir string // SPOE transaction directory
+	SocketFile         string // Socket file path
+	PidFile            string // PID file path
+	SpoeConfigFile     string // SPOE configuration file path
+	SpoeAgentAddress   string // SPOE proxy address
+	SpoeAgentPort      int64  // SPOE proxy port
 
 	// internal field
-	haproxyCmd      *exec.Cmd                   // HAProxy进程命令
-	confClient      configuration.Configuration // 配置客户端
-	runtimeClient   runtime_api.Runtime         // 运行时客户端
-	spoeClient      spoe.Spoe                   // SPOE客户端
-	clientNative    client_native.HAProxyClient // 完整客户端
-	isResponseCheck bool                        // 是否启用响应处理
-	status          atomic.Int32                // 使用原子操作的状态
-	isDebug         bool                        // 是否为生产环境
-	isK8s           bool                        // 是否为K8s环境
-	thread          int                         // 线程数
+	haproxyCmd      *exec.Cmd                   // HAProxy process command
+	confClient      configuration.Configuration // Configure the client
+	runtimeClient   runtime_api.Runtime         // Runtime client
+	spoeClient      spoe.Spoe                   // SPOE client
+	clientNative    client_native.HAProxyClient // Full client
+	isResponseCheck bool                        // Whether to enable response processing
+	status          atomic.Int32                // The state of using atomic operations
+	isDebug         bool                        // Is it a production environment?
+	isK8s           bool                        // Whether it is a K8s environment
+	thread          int                         // Number of threads
 
 	logger zerolog.Logger
 	ctx    context.Context
@@ -80,19 +80,19 @@ func (s *HAProxyServiceImpl) Start() error {
 	defer s.mutex.Unlock()
 
 	if _, err := os.Stat(s.HAProxyConfigFile); os.IsNotExist(err) {
-		return fmt.Errorf("没有 haporxy 配置文件")
+		return fmt.Errorf("No haporxy configuration file")
 	}
 	if _, err := os.Stat(s.SpoeConfigFile); os.IsNotExist(err) {
-		return fmt.Errorf("没有 spoe 配置文件")
+		return fmt.Errorf("No spoe configuration file")
 	}
 
-	// 检查HAProxy是否已经在运行
+	// Check if HAProxy is already running
 	running, _ := s.isHAProxyRunning()
 	if running {
-		return fmt.Errorf("HAProxy已经在运行")
+		return fmt.Errorf("HAProxy is already running")
 	}
 
-	// 启动HAProxy进程
+	// Start the HAProxy process
 	args := []string{
 		"-f", s.HAProxyConfigFile,
 		"-p", s.PidFile,
@@ -100,19 +100,19 @@ func (s *HAProxyServiceImpl) Start() error {
 		"-S", fmt.Sprintf("unix@%s", s.SocketFile),
 	}
 
-	// 如果是生产环境，添加安静模式参数
+	// If it is a production environment, add quiet mode parameters
 	if !s.isDebug {
 		args = append([]string{"-q"}, args...)
 	}
 
-	// 启动HAProxy进程
+	// Start the HAProxy process
 	cmd := exec.Command(s.HaproxyBin, args...)
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("启动HAProxy失败: %v", err)
+		return fmt.Errorf("Failed to start HAProxy: %v", err)
 	}
 
 	s.haproxyCmd = cmd
@@ -120,23 +120,23 @@ func (s *HAProxyServiceImpl) Start() error {
 	maxAttempts := 10
 	for i := 0; i < maxAttempts; i++ {
 		if _, err := os.Stat(s.SocketFile); err == nil {
-			// 套接字已创建，继续等待一段时间确保HAProxy就绪
+			// The socket has been created, continue to wait for a while to ensure that HAProxy is ready
 			time.Sleep(500 * time.Millisecond)
 			break
 		}
 
 		if i == maxAttempts-1 {
-			return fmt.Errorf("套接字文件未创建: %s", s.SocketFile)
+			return fmt.Errorf("Socket file not created: %s", s.SocketFile)
 		}
 
 		time.Sleep(500 * time.Millisecond)
 	}
 
-	// 初始化客户端
+	// Initialize the client
 	if err := s.initClients(); err != nil {
-		// 如果初始化客户端失败，尝试终止HAProxy进程
+		// If the initialization of the client fails, try to terminate the HAProxy process
 		s.stopHAProxy()
-		return fmt.Errorf("初始化客户端失败: %v", err)
+		return fmt.Errorf("Failed to initialize the client: %v", err)
 	}
 
 	s.status.Store(int32(StatusRunning))
@@ -156,26 +156,26 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 		return nil
 	}
 
-	s.logger.Info().Msgf("添加站点配置 %s", site.Domain)
+	s.logger.Info().Msgf("Add site configuration %s", site.Domain)
 
-	// 确保配置客户端初始化
+	// Make sure to configure client initialization
 	if err := s.ensureConfClient(); err != nil {
 		return err
 	}
 	if _, err := s.getFeCombined(site.ListenPort); err != nil {
 		err = s.createFeCombined(site.ListenPort, site.EnableHTTPS)
 		if err != nil {
-			return fmt.Errorf("创建前端组合失败: %v", err)
+			return fmt.Errorf("Failed to create a front-end combination: %v", err)
 		}
 	}
 
 	version, err := s.confClient.GetVersion("")
 	if err != nil {
-		return fmt.Errorf("获取版本失败: %v", err)
+		return fmt.Errorf("Failed to obtain the version: %v", err)
 	}
 	transaction, err := s.confClient.StartTransaction(version)
 	if err != nil {
-		return fmt.Errorf("启动事务失败: %v", err)
+		return fmt.Errorf("Failed to start transaction: %v", err)
 	}
 
 	// handle http
@@ -183,32 +183,32 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 		// IP address handling
 		err = s.confClient.DeleteServer("loopback-for-default", "backend", fmt.Sprintf("p%d_backend", site.ListenPort), transaction.ID, 0)
 		if err != nil {
-			return fmt.Errorf("删除后端服务器失败: %v", err)
+			return fmt.Errorf("Failed to delete the back-end server: %v", err)
 		}
 
 		for index, server := range site.Backend.Servers {
 			err = s.createBackendServer(fmt.Sprintf("s%s_%d", getDashDomain(site.Domain), index), server.Host, server.Port, transaction.ID, fmt.Sprintf("p%d_backend", site.ListenPort), server.IsSSL)
 			if err != nil {
-				return fmt.Errorf("创建后端服务器失败: %v", err)
+				return fmt.Errorf("Failed to create a backend server: %v", err)
 			}
 		}
 
 	} else {
 		_, aclList, err := s.confClient.GetACLs("frontend", fmt.Sprintf("fe_%d_http", site.ListenPort), "")
 		if err != nil {
-			return fmt.Errorf("获取 ACL 失败: %v", err)
+			return fmt.Errorf("Failed to obtain ACL: %v", err)
 		}
 		aclIndex := len(aclList)
 		acl_http := &models.ACL{
-			ACLName:   fmt.Sprintf("host_%s", getDashDomain(site.Domain)), // 使用ACLName字段
+			ACLName:   fmt.Sprintf("host_%s", getDashDomain(site.Domain)), // Use the ACLName field
 			Criterion: "hdr(host) -i -m end",
-			Value:     site.Domain, // 使用Value字段
-			// Criterion: "hdr(host) -i",                                     // 使用Criterion字段
-			// Value:     site.Domain,                                        // 使用Value字段
+			Value:     site.Domain, // Use the Value field
+			// Criterion: "hdr(host) -i",                                     // use Criterion field
+			// Value:     site.Domain,                                        // use Value field
 		}
 		err = s.confClient.CreateACL(int64(aclIndex), "frontend", fmt.Sprintf("fe_%d_http", site.ListenPort), acl_http, transaction.ID, 0)
 		if err != nil {
-			return fmt.Errorf("创建 ACL 失败: %v", err)
+			return fmt.Errorf("Failed to create ACL: %v", err)
 		}
 
 		backend_http := &models.Backend{
@@ -217,7 +217,7 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 				Mode:    "http",
 				Enabled: true,
 				From:    "http",
-				// 添加forwarded选项
+				// Add forwarded options
 				Forwardfor: &models.Forwardfor{
 					Enabled: StringP("enabled"),
 					Ifnone:  true,
@@ -226,17 +226,17 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 		}
 		err = s.confClient.CreateBackend(backend_http, transaction.ID, 0)
 		if err != nil {
-			return fmt.Errorf("创建后端失败: %v", err)
+			return fmt.Errorf("Failed to create backend: %v", err)
 		}
 
 		if s.isK8s {
 			/*
-				Host Header Rewriting "Origin Host Forwarding"（原始主机转发）
-					确保后端服务器接收到正确的原始主机名
-					实现基于主机名的虚拟主机服务
-					解决多层代理环境中的路由问题
-					满足特定后端服务对 Host 头的要求
-					实现透明代理
+				Host Header Rewriting "Origin Host Forwarding" (original Host Forwarding)
+					Make sure that the back-end server receives the correct original host name
+					Implement host name-based virtual hosting services
+					Solve routing problems in a multi-layer proxy environment
+					Meet the requirements of specific back-end services for the host header
+					Implement transparent proxy
 			*/
 			site_backend_request_rule := []struct {
 				index int64
@@ -265,14 +265,14 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 			for _, item := range site_backend_request_rule {
 				err = s.confClient.CreateHTTPRequestRule(item.index, "backend", backend_http.Name, item.rule, transaction.ID, 0)
 				if err != nil {
-					return fmt.Errorf("站点 %s 后端 %s 添加HTTP请求规则 #%d 错误: %v", site.Domain, backend_http.Name, item.index, err)
+					return fmt.Errorf("Site %s backend %s Add HTTP request rule #%d error: %v", site.Domain, backend_http.Name, item.index, err)
 				}
 			}
 		}
 
 		_, switchingRules, err := s.confClient.GetBackendSwitchingRules(fmt.Sprintf("fe_%d_http", site.ListenPort), "")
 		if err != nil {
-			return fmt.Errorf("获取后端切换规则失败: %v", err)
+			return fmt.Errorf("Failed to obtain the backend switching rule: %v", err)
 		}
 		switchingRuleIndex := len(switchingRules)
 
@@ -283,13 +283,13 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 		}
 		err = s.confClient.CreateBackendSwitchingRule(int64(switchingRuleIndex), fmt.Sprintf("fe_%d_http", site.ListenPort), httpUseBackendRule, transaction.ID, 0)
 		if err != nil {
-			return fmt.Errorf("创建后端切换规则失败: %v", err)
+			return fmt.Errorf("Failed to create a backend switching rule: %v", err)
 		}
 
 		for index, server := range site.Backend.Servers {
 			err = s.createBackendServer(fmt.Sprintf("%s_%d", getDashDomain(site.Domain), index), server.Host, server.Port, transaction.ID, backend_http.Name, server.IsSSL)
 			if err != nil {
-				return fmt.Errorf("创建后端服务器失败: %v", err)
+				return fmt.Errorf("Failed to create a backend server: %v", err)
 			}
 		}
 	}
@@ -299,7 +299,7 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 		// add cert
 		err = s.addSiteCert(site)
 		if err != nil {
-			return fmt.Errorf("添加证书失败: %v", err)
+			return fmt.Errorf("Failed to add certificate: %v", err)
 		}
 		// cert load
 		crtLoad := &models.CrtLoad{
@@ -309,13 +309,13 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 		}
 		err = s.confClient.CreateCrtLoad("sites", crtLoad, transaction.ID, 0)
 		if err != nil {
-			return fmt.Errorf("创建证书加载失败: %v", err)
+			return fmt.Errorf("Failed to create a certificate to load: %v", err)
 		}
 
 		// change bind
 		_, https_bind, err := s.confClient.GetBind("internal_https", "frontend", fmt.Sprintf("fe_%d_https", site.ListenPort), "")
 		if err != nil {
-			return fmt.Errorf("获取绑定失败: %v", err)
+			return fmt.Errorf("Failed to obtain binding: %v", err)
 		}
 
 		if len(https_bind.BindParams.DefaultCrtList) > 0 {
@@ -329,12 +329,12 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 
 		err = s.confClient.EditBind("internal_https", "frontend", fmt.Sprintf("fe_%d_https", site.ListenPort), https_bind, transaction.ID, 0)
 		if err != nil {
-			return fmt.Errorf("修改绑定失败: %v", err)
+			return fmt.Errorf("Failed to modify the binding: %v", err)
 		}
 
 		_, aclList, err := s.confClient.GetACLs("frontend", fmt.Sprintf("fe_%d_https", site.ListenPort), "")
 		if err != nil {
-			return fmt.Errorf("获取 ACL 失败: %v", err)
+			return fmt.Errorf("Failed to obtain ACL: %v", err)
 		}
 		aclIndex := len(aclList)
 		// add ack and rule backend
@@ -347,12 +347,12 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 		}
 		err = s.confClient.CreateACL(int64(aclIndex), "frontend", fmt.Sprintf("fe_%d_https", site.ListenPort), acl_https, transaction.ID, 0)
 		if err != nil {
-			return fmt.Errorf("创建 ACL 失败: %v", err)
+			return fmt.Errorf("Failed to create ACL: %v", err)
 		}
 
 		_, switchingRules, err := s.confClient.GetBackendSwitchingRules(fmt.Sprintf("fe_%d_https", site.ListenPort), "")
 		if err != nil {
-			return fmt.Errorf("获取后端切换规则失败: %v", err)
+			return fmt.Errorf("Failed to obtain the backend switching rule: %v", err)
 		}
 		switchingRuleIndex := len(switchingRules)
 		httpsUseBackendRule := &models.BackendSwitchingRule{
@@ -362,14 +362,14 @@ func (s *HAProxyServiceImpl) AddSiteConfig(site model.Site) error {
 		}
 		err = s.confClient.CreateBackendSwitchingRule(int64(switchingRuleIndex), fmt.Sprintf("fe_%d_https", site.ListenPort), httpsUseBackendRule, transaction.ID, 0)
 		if err != nil {
-			return fmt.Errorf("创建后端切换规则失败: %v", err)
+			return fmt.Errorf("Failed to create a backend switching rule: %v", err)
 		}
 
 	}
 
 	transaction, err = s.confClient.CommitTransaction(transaction.ID)
 	if err != nil {
-		return fmt.Errorf("提交事务失败: %v", err)
+		return fmt.Errorf("Commit transaction failed: %v", err)
 	}
 
 	s.confClient.DeleteTransaction(transaction.ID)
@@ -433,33 +433,33 @@ func (s *HAProxyServiceImpl) HotReloadRemoveConfig() error {
 					continue // 跳过 PidFile 和 SocketFile
 				}
 
-				s.logger.Info().Msgf("正在删除文件: %s", filePath)
+				s.logger.Info().Msgf("Deleting files: %s", filePath)
 				if err := os.Remove(filePath); err != nil {
-					s.logger.Error().Msgf("删除文件失败 %s: %v", filePath, err)
+					s.logger.Error().Msgf("File deletion failed %s: %v", filePath, err)
 					// 继续删除其他文件，不立即返回错误
 				}
 			}
 		}
 	}
 
-	// 删除文件
+	// Delete file
 	for _, file := range filesToRemove {
 		if file == "" {
-			continue // 跳过空路径
+			continue // Skip empty path
 		}
 
-		// 检查文件是否存在
+		// Check if the file exists
 		if _, err := os.Stat(file); err == nil {
-			// 确认不是需要保留的文件
+			// Confirm that it is not a file that needs to be kept
 			fileAbs, _ := filepath.Abs(file)
 			if fileAbs == pidFileAbs || fileAbs == socketFileAbs {
-				continue // 跳过 PidFile 和 SocketFile
+				continue // skip PidFile and SocketFile
 			}
 
-			s.logger.Info().Msgf("正在删除文件: %s", file)
+			s.logger.Info().Msgf("Deleting files: %s", file)
 			if err := os.Remove(file); err != nil {
-				s.logger.Error().Msgf("删除文件失败 %s: %v", file, err)
-				// 继续删除其他文件，不立即返回错误
+				s.logger.Error().Msgf("File deletion failed %s: %v", file, err)
+				// Continue to delete other files without returning an error immediately
 			}
 		}
 	}
@@ -473,15 +473,15 @@ func (s *HAProxyServiceImpl) HotReloadRemoveConfig() error {
 
 		// 检查目录是否存在
 		if _, err := os.Stat(dir); err == nil {
-			s.logger.Info().Msgf("正在删除目录: %s", dir)
+			s.logger.Info().Msgf("Deleting a directory: %s", dir)
 			if err := os.RemoveAll(dir); err != nil {
-				s.logger.Error().Msgf("删除目录失败 %s: %v", dir, err)
+				s.logger.Error().Msgf("Failed to delete directory %s: %v", dir, err)
 				// 继续删除其他目录，不立即返回错误
 			}
 		}
 	}
 
-	s.logger.Info().Msg("配置清理完成")
+	s.logger.Info().Msg("Configuration cleanup is complete")
 	return nil
 }
 
@@ -513,9 +513,9 @@ func (s *HAProxyServiceImpl) RemoveConfig() error {
 
 		// 检查文件是否存在
 		if _, err := os.Stat(file); err == nil {
-			s.logger.Info().Msgf("正在删除文件: %s", file)
+			s.logger.Info().Msgf("Deleting files: %s", file)
 			if err := os.Remove(file); err != nil {
-				s.logger.Error().Msgf("删除文件失败 %s: %v", file, err)
+				s.logger.Error().Msgf("File deletion failed %s: %v", file, err)
 				// 继续删除其他文件，不立即返回错误
 			}
 		}
@@ -529,15 +529,15 @@ func (s *HAProxyServiceImpl) RemoveConfig() error {
 
 		// 检查目录是否存在
 		if _, err := os.Stat(dir); err == nil {
-			s.logger.Info().Msgf("正在删除目录: %s", dir)
+			s.logger.Info().Msgf("Deleting a directory: %s", dir)
 			if err := os.RemoveAll(dir); err != nil {
-				s.logger.Error().Msgf("删除目录失败 %s: %v", dir, err)
+				s.logger.Error().Msgf("Failed to delete directory %s: %v", dir, err)
 				// 继续删除其他目录，不立即返回错误
 			}
 		}
 	}
 
-	s.logger.Info().Msg("配置清理完成")
+	s.logger.Info().Msg("Configuration cleanup is complete")
 	return nil
 }
 
@@ -574,62 +574,62 @@ func (s *HAProxyServiceImpl) InitHAProxyConfig() error {
 		username = "haproxy"
 	}
 
-	// 定义配置模板
+	// Определение шаблона конфигурации
 	configTemplate := `# _version = 1
 global
     log stdout format raw local0
-{{if gt .Thread 0}}    nbthread {{.Thread}} # 线程数
+{{if gt .Thread 0}}    nbthread {{.Thread}} # Number of threads
 {{end}} 
     # user {{.Username}}
     # group {{.Username}}
-	# maxconn 4000 # 最大连接数
+	# maxconn 4000 # Maximum number of connections
 defaults http
     mode http
     log global
     option httplog
     
-    # 配置服务器连接关闭模式
-    option http-server-close    # 服务器端关闭连接，优化连接复用
+    # Configure the server connection shutdown mode
+    option http-server-close    # The server closes the connection and optimizes the connection multiplexing
     
-    # 基本超时设置
-    timeout connect 5s          # 连接超时时间
-    timeout client 30s          # 客户端超时时间
-    timeout server 30s          # 服务器超时时间
-    timeout tunnel 1h           # WebSocket隧道超时时间 - 关键设置
+    # Basic timeout settings
+    timeout connect 5s          # Connection timeout
+    timeout client 30s          # Client timeout
+    timeout server 30s          # Server timeout
+    timeout tunnel 1h           # WebSocket tunnel timeout-key settings
     
-    # HTTP相关超时
-    timeout http-request 10s    # HTTP请求处理超时
-    timeout http-keep-alive 10s # HTTP保持连接超时
+    # HTTP Related timeouts
+    timeout http-request 10s    # HTTP Request processing timeout
+    timeout http-keep-alive 10s # HTTP Keep connection timeout
     
-    # 其他优化选项
-    option forwardfor           # 传递客户端真实IP
-    option dontlognull          # 不记录空连接
-    option redispatch           # 服务器故障时重新分发
-    retries 3                   # 连接失败重试次数
+    # Other optimization options
+    option forwardfor           # Deliver the client's truth IP
+    option dontlognull          # Do not record empty connections
+    option redispatch           # Redistribute in case of server failure
+    retries 3                   # Number of connection failures and retries
     
-    # 负载均衡设置 - 为WebSocket优化
-    balance leastconn           # 最少连接数算法，适合WebSocket长连接
+    # Load balancing settings - for WebSocket optimize
+    balance leastconn           # Minimum number of connections algorithm, suitable for long-term WebSocket connections
 defaults tcp
     mode tcp
     log global
     option tcplog
     
-    # 基本超时设置
-    timeout connect 5s          # 连接超时
-    timeout client 3h           # 客户端超时时间延长，适合长连接
-    timeout server 3h           # 服务器超时时间延长
+    # Basic timeout settings
+    timeout connect 5s          # Connection timeout
+    timeout client 3h           # Extended client timeout, suitable for long connections
+    timeout server 3h           # Server timeout extension
     
-    # TCP保活设置
-    option tcpka                # 启用TCP保活功能
-    option clitcpka             # 客户端侧保活功能
-    option srvtcpka             # 服务器侧保活功能
+    # TCP Keep-alive settings
+    option tcpka                # Enable TCP keep-alive function
+    option clitcpka             # Client-side keep-alive function
+    option srvtcpka             # Server-side keep-alive function
     
-    # 其他设置
-    option dontlognull          # 不记录空连接
-    retries 3                   # 连接失败重试次数
+    # Other settings
+    option dontlognull          # Do not record empty connections
+    retries 3                   # Number of connection failures and retries
     
-    # 负载均衡设置
-    balance leastconn           # 针对长连接的最优算法
+    # Load balancing settings
+    balance leastconn           # Optimal algorithm for long connections
 frontend stats from http
   mode http
   bind *:8404
@@ -638,7 +638,7 @@ frontend stats from http
   stats show-modules
 # The following part will be dynamically configured
 `
-	// 准备模板数据
+	// Prepare template data
 	data := struct {
 		Username string
 		Thread   int
@@ -647,13 +647,13 @@ frontend stats from http
 		Thread:   s.thread,
 	}
 
-	// 解析模板
+	// Parse template
 	tmpl, err := template.New("haproxy-config").Parse(configTemplate)
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %v", err)
 	}
 
-	// 执行模板并写入文件
+	// Execute the template and write to the file
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, data); err != nil {
 		return fmt.Errorf("failed to execute template: %v", err)
@@ -671,17 +671,17 @@ func (s *HAProxyServiceImpl) InitSpoeConfig() error {
 	defer s.mutex.Unlock()
 
 	if err := s.ensureSpoeClient(); err != nil {
-		return fmt.Errorf("初始化SPOE客户端失败: %v", err)
+		return fmt.Errorf("Failed to initialize the SPOE client: %v", err)
 	}
 
 	spoeFileName := filepath.Base(s.SpoeConfigFile)
 
 	if _, err := os.Stat(s.SpoeConfigFile); err == nil {
-		// 文件存在，返回错误
-		return fmt.Errorf("SPOE 配置文件已存在: %s", s.SpoeConfigFile)
+		// The file exists, an error is returned
+		return fmt.Errorf("SPOE The configuration file already exists: %s", s.SpoeConfigFile)
 	} else if !os.IsNotExist(err) {
-		// 发生了除"文件不存在"之外的错误
-		return fmt.Errorf("检查 SPOE 配置文件时出错: %v", err)
+		// An error other than "File does not exist" occurred
+		return fmt.Errorf("An error occurred while checking the SPOE configuration file: %v", err)
 	}
 
 	emptyReader := bytes.NewReader([]byte{})
@@ -689,30 +689,30 @@ func (s *HAProxyServiceImpl) InitSpoeConfig() error {
 
 	_, err := s.spoeClient.Create(spoeFileName, readCloser)
 	if err != nil {
-		return fmt.Errorf("创建SPOE配置文件失败: %v", err)
+		return fmt.Errorf("Failed to create SPOE configuration file: %v", err)
 	}
 
 	singleSpoe, err := s.spoeClient.GetSingleSpoe(spoeFileName)
 	if err != nil {
-		return fmt.Errorf("获取 SPOE 配置错误: %v", err)
+		return fmt.Errorf("Get SPOE configuration error: %v", err)
 	}
 	version, err := singleSpoe.Transaction.TransactionClient.GetVersion("")
 	if err != nil {
-		return fmt.Errorf("获取 SPOE 版本错误: %v", err)
+		return fmt.Errorf("Get SPOE version error: %v", err)
 	}
 	transaction, err := singleSpoe.Transaction.StartTransaction(version)
 	if err != nil {
-		return fmt.Errorf("启动 SPOE 事务错误: %v", err)
+		return fmt.Errorf("SPOE transaction error started: %v", err)
 	}
 	scopeName := models.SpoeScope("[coraza]")
 	err = singleSpoe.CreateScope(&scopeName, transaction.ID, 0)
 	if err != nil {
-		return fmt.Errorf("创建 SPOE 作用域错误: %v", err)
+		return fmt.Errorf("Error in creating SPOE scope: %v", err)
 	}
 
 	agent := &models.SpoeAgent{
 		Name: StringP("coraza-agent"),
-		// 根据 isResponseCheck 决定是否包含响应处理
+		// Decide whether to include response processing based on isResponseCheck
 		Messages: func() string {
 			if s.isResponseCheck {
 				return "coraza-req coraza-res"
@@ -721,8 +721,8 @@ func (s *HAProxyServiceImpl) InitSpoeConfig() error {
 		}(),
 		OptionVarPrefix:   "coraza",
 		OptionSetOnError:  "error",
-		HelloTimeout:      2000,   // 2s (毫秒)
-		IdleTimeout:       120000, // 2m (毫秒)
+		HelloTimeout:      2000,   // 2s (milliseconds)
+		IdleTimeout:       120000, // 2m (milliseconds)
 		ProcessingTimeout: 500,    // 500ms
 		UseBackend:        "coraza-spoa",
 		Log:               models.LogTargets{&models.LogTarget{Global: true}},
@@ -731,7 +731,7 @@ func (s *HAProxyServiceImpl) InitSpoeConfig() error {
 	err = singleSpoe.CreateAgent(string(scopeName), agent, transaction.ID, 0)
 	if err != nil {
 		singleSpoe.Transaction.DeleteTransaction(transaction.ID)
-		return fmt.Errorf("创建 SPOE 代理错误: %v", err)
+		return fmt.Errorf("Creating SPOE proxy error: %v", err)
 	}
 
 	// 创建 coraza-req 消息
@@ -748,7 +748,7 @@ func (s *HAProxyServiceImpl) InitSpoeConfig() error {
 	err = singleSpoe.CreateMessage(string(scopeName), reqMsg, transaction.ID, 0)
 	if err != nil {
 		singleSpoe.Transaction.DeleteTransaction(transaction.ID)
-		return fmt.Errorf("创建 SPOE 请求消息错误: %v", err)
+		return fmt.Errorf("Create SPOE request message error: %v", err)
 	}
 
 	// 创建 coraza-res 消息
@@ -765,14 +765,14 @@ func (s *HAProxyServiceImpl) InitSpoeConfig() error {
 		err = singleSpoe.CreateMessage(string(scopeName), resMsg, transaction.ID, 0)
 		if err != nil {
 			singleSpoe.Transaction.DeleteTransaction(transaction.ID)
-			return fmt.Errorf("创建 SPOE 响应消息错误: %v", err)
+			return fmt.Errorf("Create SPOE response message error: %v", err)
 		}
 
 	}
 
 	_, err = singleSpoe.Transaction.CommitTransaction(transaction.ID)
 	if err != nil {
-		return fmt.Errorf("提交 SPOE 事务错误: %v", err)
+		return fmt.Errorf("Commit SPOE transaction error: %v", err)
 	}
 
 	singleSpoe.Transaction.DeleteTransaction(transaction.ID)
@@ -1365,7 +1365,7 @@ func (s *HAProxyServiceImpl) createFeCombined(port int, isHttpsRedirect bool) er
 			DefaultBackend: fmt.Sprintf("p%d_backend", port),
 			Enabled:        true,
 			From:           "http",
-			// 日志格式使用反斜杠转义空格和特殊字符
+			// The log format uses backslashes to escape spaces and special characters
 			LogFormat: "\"%ci:%cp\\ [%t]\\ %ft\\ %b/%s\\ %Th/%Ti/%TR/%Tq/%Tw/%Tc/%Tr/%Tt\\ %ST\\ %B\\ %CC\\ %CS\\ %tsc\\ %ac/%fc/%bc/%sc/%rc\\ %sq/%bq\\ %hr\\ %hs\\ %{+Q}r\\ %[var(txn.coraza.id)]\\ spoa-error:\\ %[var(txn.coraza.error)]\\ waf-hit:\\ %[var(txn.coraza.status)]\"",
 			Forwardfor: &models.Forwardfor{
 				Enabled: StringP("enabled"),

@@ -204,7 +204,7 @@ func NewMongoLogStoreWithConfig(client *mongo.Client, database, collection strin
 			Int("num_buffers", config.NumBuffers).
 			Int("writer_count", config.WriterCount).
 			Int("buffer_size", config.BufferSize).
-			Msg("创建新的高性能MongoLogStore实例")
+			Msg("Create a new high-performance MongoLogStore instance")
 	})
 
 	return mongoLogStoreInstance
@@ -230,14 +230,14 @@ func (s *MongoLogStore) Store(log model.WAFLog) error {
 	return nil
 }
 
-// Start 启动日志存储处理
+// Start log storage processing
 func (s *MongoLogStore) Start() {
 	if !s.state.CompareAndSwap(0, 1) {
-		s.logger.Debug().Msg("日志处理已在运行")
+		s.logger.Debug().Msg("Log processing is already running")
 		return
 	}
 
-	s.logger.Info().Msg("启动高性能日志处理")
+	s.logger.Info().Msg("Start high-performance log processing")
 
 	// 启动多个写入协程
 	for i := 0; i < s.writerCount; i++ {

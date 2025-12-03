@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	SystemDefaultIPBlockRule = "system_default_ip_block" // 系统默认IP阻止规则名称
+	SystemDefaultIPBlockRule = "system_default_ip_block" // System default IP blocking rule name
 )
 
 var (
@@ -149,9 +149,9 @@ func (s *MicroRuleServiceImpl) UpdateMicroRule(ctx context.Context, id bson.Obje
 		return nil, err
 	}
 
-	// 检查是否是系统默认规则
+	// Check if it is the system default rule
 	if rule.Name == SystemDefaultIPBlockRule {
-		s.logger.Warn().Str("id", id.Hex()).Msg("尝试修改系统默认规则")
+		s.logger.Warn().Str("id", id.Hex()).Msg("Try to modify the system default rules")
 		return nil, ErrSystemRuleNoMod
 	}
 

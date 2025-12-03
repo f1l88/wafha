@@ -69,7 +69,7 @@ func (c *BlockedIPControllerImpl) GetBlockedIPs(ctx *gin.Context) {
 		Str("status", req.Status).
 		Str("sortBy", req.SortBy).
 		Str("sortDir", req.SortDir).
-		Msg("获取封禁IP列表请求")
+		Msg("Request to obtain a list of blocked IPS")
 
 	result, err := c.blockedIPService.GetBlockedIPs(ctx, &req)
 	if err != nil {
@@ -87,9 +87,9 @@ func (c *BlockedIPControllerImpl) GetBlockedIPs(ctx *gin.Context) {
 		Int("items_count", len(result.Items)).
 		Int("page", result.Page).
 		Int("pages", result.Pages).
-		Msg("获取封禁IP列表成功")
+		Msg("Successfully obtained the blocked IP list")
 
-	response.Success(ctx, "获取封禁IP列表成功", result)
+	response.Success(ctx, "Successfully obtained the blocked IP list", result)
 }
 
 // GetBlockedIPStats 获取封禁IP统计信息

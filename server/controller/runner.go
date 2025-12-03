@@ -153,24 +153,24 @@ func (c *RunnerControllerImpl) Control(ctx *gin.Context) {
 	case "reload":
 		err = c.runnerService.Reload(ctx)
 	default:
-		c.logger.Warn().Str("action", req.Action).Msg("不支持的操作类型")
-		response.BadRequest(ctx, errors.New("不支持的操作类型"), true)
+		c.logger.Warn().Str("action", req.Action).Msg("Unsupported operation types")
+		response.BadRequest(ctx, errors.New("Unsupported operation types"), true)
 		return
 	}
 
 	// 处理操作结果
 	if err != nil {
 		if errors.Is(err, service.ErrRunnerNotRunning) {
-			c.logger.Warn().Str("action", req.Action).Msg("运行器未在运行")
+			c.logger.Warn().Str("action", req.Action).Msg("The runner is not running")
 			response.BadRequest(ctx, err, true)
 			return
 		} else if errors.Is(err, service.ErrRunnerAlreadyRunning) {
-			c.logger.Warn().Str("action", req.Action).Msg("运行器已经在运行中")
+			c.logger.Warn().Str("action", req.Action).Msg("The runner is already running")
 			response.BadRequest(ctx, err, true)
 			return
 		}
 
-		c.logger.Error().Err(err).Str("action", req.Action).Msg("运行器操作失败")
+		c.logger.Error().Err(err).Str("action", req.Action).Msg("Operator operation failed")
 		response.InternalServerError(ctx, err, false)
 		return
 	}
@@ -181,6 +181,6 @@ func (c *RunnerControllerImpl) Control(ctx *gin.Context) {
 	// 构建响应
 	resp := buildControlResponse(req.Action, state)
 
-	c.logger.Info().Str("action", req.Action).Str("state", resp.State).Msg("运行器操作成功")
-	response.Success(ctx, "操作成功", resp)
+	c.logger.Info().Str("action", req.Action).Str("state", resp.State).Msg("The operator operated successfully")
+	response.Success(ctx, "Successful operation", resp)
 }

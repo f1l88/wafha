@@ -97,16 +97,16 @@ func (c *IPGroupControllerImpl) GetIPGroups(ctx *gin.Context) {
 	page := ctx.DefaultQuery("page", "1")
 	size := ctx.DefaultQuery("size", "10")
 
-	c.logger.Info().Str("page", page).Str("size", size).Msg("获取IP组列表请求")
+	c.logger.Info().Str("page", page).Str("size", size).Msg("Request for IP group list")
 	ipGroups, total, err := c.ipGroupService.GetIPGroups(ctx, page, size)
 	if err != nil {
-		c.logger.Error().Err(err).Msg("获取IP组列表失败")
+		c.logger.Error().Err(err).Msg("Failed to obtain the IP group list")
 		response.InternalServerError(ctx, err, false)
 		return
 	}
 
-	c.logger.Info().Int64("total", total).Msg("获取IP组列表成功")
-	response.Success(ctx, "获取IP组列表成功", gin.H{
+	c.logger.Info().Int64("total", total).Msg("Successfully obtained the IP group list")
+	response.Success(ctx, "Successfully obtained the IP group list", gin.H{
 		"total": total,
 		"items": ipGroups,
 	})
@@ -225,10 +225,10 @@ func (c *IPGroupControllerImpl) UpdateIPGroup(ctx *gin.Context) {
 func (c *IPGroupControllerImpl) DeleteIPGroup(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	c.logger.Info().Str("id", id).Msg("删除IP组请求")
+	c.logger.Info().Str("id", id).Msg("Delete IP group request")
 	objectID, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		c.logger.Error().Err(err).Str("id", id).Msg("无效的ID格式")
+		c.logger.Error().Err(err).Str("id", id).Msg("Invalid ID format")
 		response.BadRequest(ctx, err, true)
 		return
 	}

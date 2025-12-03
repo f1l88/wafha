@@ -6,8 +6,8 @@ import (
 	"github.com/HUAHUAI23/RuiQi/pkg/model"
 )
 
-// AttackEventRequset 攻击事件查询请求
-// @Description 用于攻击事件聚合查询的参数结构体，支持多维度筛选，包括来源/目标IP地址、域名、端口和时间范围，并提供分页功能
+// AttackEventRequset Attack event query request
+// @Description The parameter structure used for attack event aggregation query supports multi-dimensional filtering, including source/target IP address, domain name, port, and time range, and provides paging function
 type AttackEventRequset struct {
 	SrcIP     string    `json:"srcIp" form:"srcIp" binding:"omitempty" example:"192.168.1.100"`                                                   // 来源IP地址，用于追踪攻击源
 	DstIP     string    `json:"dstIp" form:"dstIp" binding:"omitempty" example:"10.0.0.5"`                                                        // 目标IP地址，被攻击的服务器地址

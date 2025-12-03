@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router'
 import { LoginForm } from '@/feature/auth/components/LoginForm'
 import useAuthStore from '@/store/auth'
 import { useTranslation } from 'react-i18next'
-import { Heart } from 'lucide-react'
 
 export default function LoginPage() {
     const { isAuthenticated, needPasswordReset } = useAuthStore()
@@ -51,10 +50,7 @@ export default function LoginPage() {
 
             {/* 底部说明文字 */}
             <div className="text-center text-xs text-white/70 dark:text-white mt-8 z-10 flex items-center justify-center gap-1 animate-fade-in-up [animation-delay:400ms]">
-                <span>Made with</span>
-                <Heart className="h-3 w-3 text-red-500 fill-red-500" />
-                <span>by</span>
-                <a href="https://github.com/HUAHUAI23/RuiQi" target="_blank" rel="noopener noreferrer" className="text-white/70 dark:text-white dark:text-shadow-glow-white">RuiQi WAF team</a>
+                <a href="https://github.com/f1l88/wafha" target="_blank" rel="noopener noreferrer" className="text-white/70 dark:text-white dark:text-shadow-glow-white">WAFHA</a>
             </div>
         </div>
     )

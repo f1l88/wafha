@@ -46,24 +46,24 @@ func NewGeoIP2Processor(ctx context.Context, options GeoIP2Options, logger zerol
 	if options.CityDBPath != "" {
 		cityDB, err := geoip2.Open(options.CityDBPath)
 		if err != nil {
-			logger.Error().Err(err).Str("path", options.CityDBPath).Msg("打开城市数据库失败")
+			logger.Error().Err(err).Str("path", options.CityDBPath).Msg("Failed to open the city database")
 		} else {
 			processor.cityDB = cityDB
 		}
 	} else {
-		logger.Warn().Msg("未提供城市数据库路径，地理位置功能将不可用")
+		logger.Warn().Msg("If the city database path is not provided, the geographic location function will not be available")
 	}
 
 	// 尝试打开ASN数据库
 	if options.ASNDBPath != "" {
 		asnDB, err := geoip2.Open(options.ASNDBPath)
 		if err != nil {
-			logger.Warn().Err(err).Str("path", options.ASNDBPath).Msg("打开ASN数据库失败，ASN信息将不可用")
+			logger.Warn().Err(err).Str("path", options.ASNDBPath).Msg("Failed to open the ASN database, ASN information will not be available")
 		} else {
 			processor.asnDB = asnDB
 		}
 	} else {
-		logger.Warn().Msg("未提供ASN数据库路径，ASN信息将不可用")
+		logger.Warn().Msg("If the ASN database path is not provided, the ASN information will not be available")
 	}
 
 	// 如果两个数据库都无法打开，返回空实现

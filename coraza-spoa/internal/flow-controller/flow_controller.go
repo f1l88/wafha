@@ -124,13 +124,13 @@ func NewFlowControllerFromMongoConfig(client *mongo.Client, database string, log
 
 	// 如果实例已存在，则更新配置
 	if flowControllerInstance != nil {
-		logger.Info().Msg("更新现有流控处理器配置")
+		logger.Info().Msg("Update the existing flow control processor configuration")
 		flowControllerInstance.UpdateConfig(config)
 		return flowControllerInstance, nil
 	}
 
 	// 创建新实例
-	logger.Info().Msg("创建新的流控处理器实例")
+	logger.Info().Msg("Create a new flow control processor instance")
 	fc := NewFlowController(config, logger, recorder)
 	flowControllerInstance = fc
 	return fc, nil
@@ -177,7 +177,7 @@ func (fc *FlowController) UpdateConfig(config FlowControlConfig) {
 		// 重新配置各类流控规则
 		fc.setupAllRules()
 
-		fc.logger.Info().Msg("流控规则已更新")
+		fc.logger.Info().Msg("Flow control rules have been updated")
 	}
 }
 
@@ -226,7 +226,7 @@ func (fc *FlowController) Initialize() error {
 		Uint32("log_max_files", conf.Sentinel.Log.Metric.MaxFileCount).
 		Str("metrics_addr", conf.Sentinel.Exporter.Metric.HttpAddr).
 		Str("metrics_path", conf.Sentinel.Exporter.Metric.HttpPath).
-		Msg("初始化 Sentinel 配置")
+		Msg("initialize Sentinel configuration")
 
 	// 初始化 Sentinel
 	err := sentinel.InitWithConfig(conf)
@@ -238,7 +238,7 @@ func (fc *FlowController) Initialize() error {
 	fc.setupAllRules()
 
 	fc.initialized = true
-	fc.logger.Info().Msg("流控系统初始化完成")
+	fc.logger.Info().Msg("Flow control system initialization is complete")
 	return nil
 }
 
@@ -287,33 +287,33 @@ func (fc *FlowController) setupAllRules() {
 		})
 	}
 
-	// 一次性加载所有规则
+	// Load all rules at once
 	_, err := hotspot.LoadRules(allRules)
 	if err != nil {
 		fc.logger.Error().Err(err).Msg("加载热点限流规则失败")
 	} else {
-		fc.logger.Info().Msgf("所有限流规则加载成功，开启的规则数量：%d", len(allRules))
+		fc.logger.Info().Msgf("All current limiting rules are loaded successfully, the number of rules opened：%d", len(allRules))
 
 		fc.logger.Info().
 			Int64("threshold", fc.config.VisitLimit.Threshold).
 			Int64("burstCount", fc.config.VisitLimit.BurstCount).
 			Int64("durationInSec", int64(fc.config.VisitLimit.StatDuration.Seconds())).
 			Bool("enabled", fc.config.VisitLimit.Enabled).
-			Msg("访问限流规则加载成功")
+			Msg("The access restriction rule was loaded successfully")
 
 		fc.logger.Info().
 			Int64("threshold", fc.config.AttackLimit.Threshold).
 			Int64("burstCount", fc.config.AttackLimit.BurstCount).
 			Int64("durationInSec", int64(fc.config.AttackLimit.StatDuration.Seconds())).
 			Bool("enabled", fc.config.AttackLimit.Enabled).
-			Msg("攻击限流规则加载成功")
+			Msg("The attack current limit rule was loaded successfully")
 
 		fc.logger.Info().
 			Int64("threshold", fc.config.ErrorLimit.Threshold).
 			Int64("burstCount", fc.config.ErrorLimit.BurstCount).
 			Int64("durationInSec", int64(fc.config.ErrorLimit.StatDuration.Seconds())).
 			Bool("enabled", fc.config.ErrorLimit.Enabled).
-			Msg("错误限流规则加载成功")
+			Msg("Error current limit rule loaded successfully")
 	}
 }
 

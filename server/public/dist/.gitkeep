@@ -1,3 +1,0 @@
-# This file ensures the dist directory is tracked by Git
-# The dist directory contains frontend build artifacts copied during build process
-# Files in this directory are ignored by .gitignore but the directory structure is preserved 

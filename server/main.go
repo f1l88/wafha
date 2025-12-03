@@ -23,14 +23,14 @@ import (
 	"github.com/HUAHUAI23/RuiQi/server/validator"
 )
 
-//	@title			RuiQi-WAF API
+//	@title			WAFHA API
 //	@version		1.0
-//	@description	RuiQi 应用防火墙管理系统 API
-//	@termsOfService	https://github.com/HUAHUAI23/RuiQi
+//	@description	WAFHA Application firewall management system API
+//	@termsOfService	https://github.com/f1l88/wafha
 
 //	@contact.name	API Support
-//	@contact.url	https://github.com/HUAHUAI23/RuiQi
-//	@contact.email	huahua1319873800@outlook.com
+//	@contact.url	https://github.com/f1l88/wafha
+//	@contact.email	alxflv@yande.ru
 
 //	@license.name	Apache 2.0
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
@@ -41,7 +41,7 @@ import (
 // @securityDefinitions.apikey	BearerAuth
 // @in							header
 // @name						Authorization
-// @description				使用 Bearer {token} 格式进行身份验证
+// @description				Use the Bearer {token} format for authentication
 func main() {
 	// Load configuration
 	err := config.InitConfig()
@@ -50,14 +50,14 @@ func main() {
 		return
 	}
 
-	// 连接数据库
+	// Connect to the database
 	client, err := mongodb.Connect(config.Global.DBConfig.URI)
 	if err != nil {
 		config.Logger.Error().Err(err).Msg("Failed to connect to database")
 		return
 	}
 
-	// 获取数据库
+	// Get the database
 	db := client.Database(config.Global.DBConfig.Database)
 
 	err = config.InitDB(db)

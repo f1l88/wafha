@@ -35,7 +35,7 @@ type ServiceRunner interface {
 	GetStats() (models.NativeStats, error)
 }
 
-// ServiceRunner 负责管理和协调所有后台服务
+// ServiceRunner Отвечает за управление и координацию всех услуг бэк-офиса
 type ServiceRunnerImpl struct {
 	haproxyService haproxy.HAProxyService
 	engineService  engine.EngineService
@@ -43,8 +43,8 @@ type ServiceRunnerImpl struct {
 	cancel         context.CancelFunc
 	logger         *zerolog.Logger
 	errChan        chan error
-	haproxyDone    chan struct{} // 通知HAProxy服务已停止
-	engineDone     chan struct{} // 通知Engine服务已停止
+	haproxyDone    chan struct{} // Notify that the HAProxy service has stopped
+	engineDone     chan struct{} // Notify Engine that the service has stopped
 	state          ServiceState
 }
 
@@ -93,7 +93,7 @@ func newServiceRunner() (ServiceRunner, error) {
 func (r *ServiceRunnerImpl) StartServices() error {
 	// 检查服务是否已经在运行
 	if r.state == ServiceRunning {
-		return fmt.Errorf("服务已经在运行中")
+		return fmt.Errorf("The service is already running")
 	}
 
 	// 创建新的上下文和取消函数
@@ -121,21 +121,21 @@ func (r *ServiceRunnerImpl) StartServices() error {
 		var site model.Site
 		siteList, err := repository.GetAllSites(r.ctx, db.Collection(site.GetCollectionName()))
 		if err != nil {
-			r.logger.Error().Err(err).Msg("获取站点列表失败")
+			r.logger.Error().Err(err).Msg("Failed to obtain the site list")
 			r.errChan <- err
 			return
 		}
 
-		r.logger.Info().Msg("开始启动HAProxy服务...")
+		r.logger.Info().Msg("Start the HAProxy service...")
 
 		if err = r.haproxyService.RemoveConfig(); err != nil {
-			r.logger.Error().Err(err).Msg("删除HAProxy配置失败")
+			r.logger.Error().Err(err).Msg("Failed to delete HAProxy configuration")
 			r.errChan <- err
 			return
 		}
 
 		if err = r.haproxyService.InitSpoeConfig(); err != nil {
-			r.logger.Error().Err(err).Msg("初始化HAProxy SPOE配置失败")
+			r.logger.Error().Err(err).Msg("Initialize HAProxy SPOE Configuration failed")
 			r.errChan <- err
 			return
 		}
@@ -173,91 +173,91 @@ func (r *ServiceRunnerImpl) StartServices() error {
 
 		// 等待停止信号
 		<-r.ctx.Done()
-		r.logger.Info().Msg("收到停止信号，停止HAProxy服务")
+		r.logger.Info().Msg("Received a stop signal, stop the HAProxy service")
 		if err := r.haproxyService.Stop(); err != nil {
-			r.logger.Error().Err(err).Msg("停止HAProxy服务失败")
+			r.logger.Error().Err(err).Msg("Failed to stop HAProxy service")
 			r.errChan <- err
 		}
 	}()
 
-	// 启动Engine服务
+	// Start the Engine service
 	go func() {
-		defer close(r.engineDone) // 服务停止时关闭通道
+		defer close(r.engineDone) // Close the channel when the service stops
 
-		r.logger.Info().Msg("启动Engine服务...")
+		r.logger.Info().Msg("Start the Engine service...")
 		if err := r.engineService.Start(); err != nil {
-			r.logger.Error().Err(err).Msg("Engine服务启动失败")
+			r.logger.Error().Err(err).Msg("Engine service failed to start")
 			r.errChan <- err
 			return
 		}
 
-		// 等待停止信号
+		// Waiting for the stop signal
 		<-r.ctx.Done()
-		r.logger.Info().Msg("收到停止信号，停止Engine服务")
+		r.logger.Info().Msg("Received a stop signal, stop the Engine service")
 		if err := r.engineService.Stop(); err != nil {
-			r.logger.Error().Err(err).Msg("停止Engine服务失败")
+			r.logger.Error().Err(err).Msg("Failed to stop the Engine service")
 			r.errChan <- err
 		}
 	}()
 
-	// 监听错误通道，如果有错误发生则返回第一个错误
+	// Listen to the error channel, and return the first error if an error occurs
 	select {
 	case err := <-r.errChan:
-		r.logger.Error().Err(err).Msg("服务启动过程中出现错误")
-		r.cancel() // 取消上下文，通知所有服务停止
+		r.logger.Error().Err(err).Msg("An error occurred during service startup")
+		r.cancel() // Cancel the context and notify all services to stop
 		r.state = ServiceError
 		return err
-	case <-time.After(2 * time.Second): // 给服务一些启动时间
-		r.logger.Info().Msg("所有服务已启动")
+	case <-time.After(2 * time.Second): // Give the service some startup time
+		r.logger.Info().Msg("All services have been started")
 		r.state = ServiceRunning
 		return nil
 	}
 }
 
-// StopServices 停止所有服务
+// StopServices Stop all services
 func (r *ServiceRunnerImpl) StopServices() error {
-	// 检查服务是否正在运行
+	// Check if the service is running
 	if r.state != ServiceRunning {
-		return fmt.Errorf("服务未在运行中")
+		return fmt.Errorf("The service is not running")
 	}
 
-	r.logger.Info().Msg("开始停止所有服务...")
+	r.logger.Info().Msg("Start and stop all services...")
 
-	// 1. 首先取消上下文，通知所有使用该上下文的操作
+	// 1. First cancel the context and notify all actions that use the context
 	if r.cancel != nil {
 		r.cancel()
 	}
 
-	// 2. 等待服务停止的通知信号
+	// 2. Waiting for a notification signal that the service has stopped
 	timeoutDuration := 15 * time.Second
 
-	// 监控 HAProxy 服务停止
+	// Monitor HAProxy service stop
 	haproxyOk := make(chan struct{})
 	go func() {
 		select {
 		case <-r.haproxyDone:
-			r.logger.Info().Msg("HAProxy服务已正常停止")
+			r.logger.Info().Msg("HAProxy service has stopped normally")
 		case <-time.After(timeoutDuration):
-			r.logger.Warn().Msg("HAProxy服务停止超时")
-			// 尝试强制停止
+			r.logger.Warn().Msg("HAProxy service stopped timeout")
+			// Try to force stop
 			if err := r.haproxyService.Stop(); err != nil {
-				r.logger.Error().Err(err).Msg("强制停止HAProxy服务失败")
+				r.logger.Error().Err(err).Msg("Failed to force stop the HAProxy service")
 			}
 		}
 		close(haproxyOk)
 	}()
 
-	// 监控 Engine 服务停止
+	// Monitor Engine service stop
 	engineOk := make(chan struct{})
 	go func() {
 		select {
 		case <-r.engineDone:
-			r.logger.Info().Msg("Engine服务已正常停止")
+			r.logger.Info().Msg("Engine service has stopped normally")
 		case <-time.After(timeoutDuration):
-			r.logger.Warn().Msg("Engine服务停止超时")
+			r.logger.Warn().Msg("Engine service stop timeout")
 			// 尝试强制停止
 			if err := r.engineService.Stop(); err != nil {
-				r.logger.Error().Err(err).Msg("强制停止Engine服务失败")
+				r.logger.Error().Err(err).Msg("Failed to forcibly stop the Engine service")
 			}
 		}
 		close(engineOk)
@@ -298,7 +298,7 @@ func (r *ServiceRunnerImpl) StopServices() error {
 		return stopErr
 	}
 
-	r.logger.Info().Msg("所有服务已成功停止")
+	r.logger.Info().Msg("All services have been successfully stopped")
 
 	return nil
 }

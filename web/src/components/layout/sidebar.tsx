@@ -2,7 +2,7 @@
 
 import { Link, useLocation, useNavigate } from "react-router"
 import { cn } from "@/lib/utils"
-import { Settings, Shield, BarChart2, FileText, LogOut, Heart, Globe, BookOpen, Github } from "lucide-react"
+import { Settings, Shield, BarChart2, FileText, LogOut, ChevronLeft, ChevronRight } from "lucide-react"
 import { ROUTES } from "@/routes/constants"
 import { useTranslation } from "react-i18next"
 import type { TFunction } from "i18next"
@@ -48,14 +48,16 @@ interface SidebarDisplayConfig {
 
 interface SidebarProps {
     displayConfig?: SidebarDisplayConfig
+    onSidebarToggle?: (isCollapsed: boolean) => void
 }
 
-export function Sidebar({ displayConfig = {} }: SidebarProps) {
+export function Sidebar({ displayConfig = {}, onSidebarToggle }: SidebarProps) {
     const location = useLocation()
     const { t } = useTranslation()
     const navigate = useNavigate()
     const { logout } = useAuthStore()
     const [isLogoutActive, setIsLogoutActive] = useState(false)
+    const [isCollapsed, setIsCollapsed] = useState(false)
 
     // Get current first level path
     const currentFirstLevelPath = "/" + location.pathname.split("/")[1]
@@ -87,9 +89,18 @@ export function Sidebar({ displayConfig = {} }: SidebarProps) {
         }, 300)
     }
 
+    const toggleSidebar = () => {
+        const newState = !isCollapsed
+        setIsCollapsed(newState)
+        onSidebarToggle?.(newState)
+    }
+
     return (
         <div
-            className="w-64 text-white flex flex-col border-r border-slate-200 dark:border-none relative overflow-hidden transition-all duration-300 bg-sidebar-gradient"
+            className={cn(
+                "text-white flex flex-col border-r border-slate-200 dark:border-none relative overflow-hidden transition-all duration-300 bg-sidebar-gradient flex-shrink-0", // добавлен flex-shrink-0
+                isCollapsed ? "w-16" : "w-64"
+            )}
         >
             {/* 霓虹灯效果 暗色模式 */}
             <div className="absolute inset-0 dark:animate-sidebar-neon-glow pointer-events-none"></div>
@@ -105,18 +116,32 @@ export function Sidebar({ displayConfig = {} }: SidebarProps) {
             </div>
 
             {/* Logo and title */}
-            {/* <div className="flex flex-col items-center gap-2 py-6 border-b border-white/10 dark:border-white/5"> */}
-            <div className="flex flex-col items-center gap-2 py-6 border-none">
-                {/* <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#A48BEA] to-[#8861DB] dark:from-[#9470DB] dark:to-[#7B4FD6] flex items-center justify-center shadow-lg animate-pulse-glow"> */}
+            <div className={cn(
+                "flex items-center gap-2 py-6 border-none transition-all duration-300",
+                isCollapsed ? "flex-col justify-center px-0" : "flex-row px-6"
+            )}>
                 <div className="w-16 h-16 rounded-full flex items-center justify-center animate-pulse-glow">
-                    {/* <Shield className="w-8 h-8 text-white" /> */}
                     <img src="/logo.svg" alt="logo" />
                 </div>
-                <div className="font-bold text-xl mt-2">
-                    <span className="text-[#E8DFFF] dark:text-[#F0EBFF] text-shadow-glow-purple transition-all duration-300">RuiQi</span>
-                    <span className="text-[#8ED4FF] dark:text-[#A5DEFF] text-shadow-glow-blue transition-all duration-300"> WAF</span>
-                </div>
+                {!isCollapsed && (
+                    <div className="font-bold text-xl">
+                        <span className="text-[#8ED4FF] dark:text-[#A5DEFF] text-shadow-glow-blue transition-all duration-300">WAFHA</span>
+                    </div>
+                )}
             </div>
+
+            {/* Toggle button */}
+            <button
+                onClick={toggleSidebar}
+                className="absolute top-4 -right-3 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white z-50 border-2 border-white shadow-lg"
+                style={{ backgroundColor: 'red' }} // Яркий цвет для видимости
+            >
+                {isCollapsed ? (
+                    <ChevronRight className="w-4 h-4" />
+                ) : (
+                    <ChevronLeft className="w-4 h-4" />
+                )}
+            </button>
 
             {/* Navigation items */}
             <div className="flex-1 py-4">
@@ -129,25 +154,29 @@ export function Sidebar({ displayConfig = {} }: SidebarProps) {
                                 key={item.href}
                                 to={item.href}
                                 className={cn(
-                                    "flex items-center gap-3 font-medium px-6 py-3 w-full group transition-all duration-300 relative overflow-hidden",
+                                    "flex items-center gap-3 font-medium py-3 w-full group transition-all duration-300 relative overflow-hidden",
                                     isActive
-                                        ? "bg-white/15 dark:bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.4)] dark:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-white translate-x-1"
-                                        : "text-white/90 hover:text-white hover:translate-x-1 hover:shadow-[0_0_10px_rgba(255,255,255,0.3)] dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]",
+                                        ? "bg-white/15 dark:bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.4)] dark:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-white"
+                                        : "text-white/90 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.3)] dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]",
                                     "before:absolute before:content-[''] before:top-0 before:left-0 before:w-full before:h-full before:bg-gradient-to-r before:from-white/5 before:to-white/20 dark:before:from-white/5 dark:before:to-white/15 before:transition-opacity before:duration-300",
                                     isActive
                                         ? "before:opacity-100"
-                                        : "before:opacity-0 hover:before:opacity-100"
+                                        : "before:opacity-0 hover:before:opacity-100",
+                                    isCollapsed ? "justify-center px-0" : "px-6"
                                 )}
+                                title={isCollapsed ? item.title : undefined}
                             >
                                 <span className="relative z-10 flex items-center gap-3">
                                     <item.icon className={cn(
                                         "w-5 h-5 transition-transform",
                                         isActive ? "text-white" : "group-hover:animate-icon-shake"
                                     )} />
-                                    <span className={cn(
-                                        "transition-all dark:text-shadow-glow-white",
-                                        isActive ? "font-semibold" : "group-hover:font-medium"
-                                    )}>{item.title}</span>
+                                    {!isCollapsed && (
+                                        <span className={cn(
+                                            "transition-all dark:text-shadow-glow-white",
+                                            isActive ? "font-semibold" : "group-hover:font-medium"
+                                        )}>{item.title}</span>
+                                    )}
                                 </span>
                                 <div className={cn(
                                     "absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent blur-sm transition-opacity duration-500",
@@ -157,64 +186,44 @@ export function Sidebar({ displayConfig = {} }: SidebarProps) {
                         )
                     })}
             </div>
+
             {/* External Links */}
             <div className="py-4 relative z-10">
-                <div className="flex items-center gap-4 px-6">
-                    <a
-                        href="https://github.com/HUAHUAI23/RuiQi"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center justify-center w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_10px_rgba(255,255,255,0.3)]"
-                        title="官网"
-                    >
-                        <Globe className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
-                    </a>
-                    <a
-                        href="https://deepwiki.com/HUAHUAI23/RuiQi"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center justify-center w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_10px_rgba(255,255,255,0.3)]"
-                        title="文档"
-                    >
-                        <BookOpen className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
-                    </a>
-                    <a
-                        href="https://github.com/HUAHUAI23/RuiQi"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center justify-center w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_10px_rgba(255,255,255,0.3)]"
-                        title="GitHub"
-                    >
-                        <Github className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
-                    </a>
+                <div className={cn(
+                    "flex items-center transition-all duration-300",
+                    isCollapsed ? "flex-col gap-2 px-0 justify-center" : "flex-row gap-4 px-6"
+                )}>
                 </div>
             </div>
 
             {/* Logout button */}
-            {/* <div className="mt-auto py-4 border-t border-white/10 dark:border-white/5 relative z-10"> */}
             <div className="mt-auto py-4 border-none">
                 <button
                     onClick={handleLogout}
                     className={cn(
-                        "flex items-center gap-3 font-medium px-6 py-3 w-full group transition-all duration-300 relative overflow-hidden",
+                        "flex items-center gap-3 font-medium py-3 w-full group transition-all duration-300 relative overflow-hidden",
                         isLogoutActive
-                            ? "bg-white/15 dark:bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.4)] dark:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-white translate-x-1"
-                            : "text-white/90 hover:text-white hover:translate-x-1 hover:shadow-[0_0_10px_rgba(255,255,255,0.3)] dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]",
+                            ? "bg-white/15 dark:bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.4)] dark:shadow-[0_0_15px_rgba(255,255,255,0.25)] text-white"
+                            : "text-white/90 hover:text-white hover:shadow-[0_0_10px_rgba(255,255,255,0.3)] dark:hover:shadow-[0_0_12px_rgba(255,255,255,0.2)]",
                         "before:absolute before:content-[''] before:top-0 before:left-0 before:w-full before:h-full before:bg-gradient-to-r before:from-white/5 before:to-white/20 dark:before:from-white/5 dark:before:to-white/15 before:transition-opacity before:duration-300",
                         isLogoutActive
                             ? "before:opacity-100"
-                            : "before:opacity-0 hover:before:opacity-100"
+                            : "before:opacity-0 hover:before:opacity-100",
+                        isCollapsed ? "justify-center px-0" : "px-6"
                     )}
+                    title={isCollapsed ? t("sidebar.logout") : undefined}
                 >
                     <span className="relative z-10 flex items-center gap-3">
                         <LogOut className={cn(
                             "w-5 h-5 transition-transform",
                             isLogoutActive ? "text-white" : "group-hover:animate-icon-shake"
                         )} />
-                        <span className={cn(
-                            "transition-all dark:text-shadow-glow-white",
-                            isLogoutActive ? "font-semibold" : "group-hover:font-medium"
-                        )}>{t("sidebar.logout")}</span>
+                        {!isCollapsed && (
+                            <span className={cn(
+                                "transition-all dark:text-shadow-glow-white",
+                                isLogoutActive ? "font-semibold" : "group-hover:font-medium"
+                            )}>{t("sidebar.logout")}</span>
+                        )}
                     </span>
                     <div className={cn(
                         "absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent blur-sm transition-opacity duration-500",
@@ -222,13 +231,12 @@ export function Sidebar({ displayConfig = {} }: SidebarProps) {
                     )}></div>
                 </button>
 
-                <div className="text-center text-xs text-white/60 dark:text-white mt-4 px-4 flex items-center justify-center gap-1">
-                    <span>Made with</span>
-                    <Heart className="h-3 w-3 text-red-500 fill-red-500" />
-                    <span>by</span>
-                    <a href="https://github.com/HUAHUAI23/RuiQi" target="_blank" rel="noopener noreferrer" className="text-white/60 dark:text-white dark:text-shadow-glow-white">RuiQi WAF team</a>
-                </div>
+                {!isCollapsed && (
+                    <div className="text-center text-xs text-white/60 dark:text-white mt-4 px-4 flex items-center justify-center gap-1">
+                        <a href="https://github.com/f1l88/wafha" target="_blank" rel="noopener noreferrer" className="text-white/60 dark:text-white dark:text-shadow-glow-white">WAFHA</a>
+                    </div>
+                )}
             </div>
-        </div >
+        </div>
     )
 }

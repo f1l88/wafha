@@ -104,13 +104,14 @@ type LogConfig struct {
 
 func (lc LogConfig) outputWriter() (io.Writer, error) {
 	var out io.Writer
-	if lc.File == "" || lc.File == "/dev/stdout" {
+	switch lc.File {
+	case "", "/dev/stdout":
 		out = os.Stdout
-	} else if lc.File == "/dev/stderr" {
+	case "/dev/stderr":
 		out = os.Stderr
-	} else if lc.File == "/dev/null" {
+	case "/dev/null":
 		out = io.Discard
-	} else {
+	default:
 		// TODO: Close the handle if not used anymore.
 		// Currently these are leaked as soon as we reload.
 		f, err := os.OpenFile(lc.File, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)

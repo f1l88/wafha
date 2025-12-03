@@ -219,10 +219,10 @@ func (s *ConfigServiceImpl) PatchConfig(ctx context.Context, req *dto.ConfigPatc
 	// 保存更新
 	err = s.configRepo.UpdateConfig(ctx, cfg)
 	if err != nil {
-		s.logger.Error().Err(err).Msg("更新配置失败")
+		s.logger.Error().Err(err).Msg("Update configuration failed")
 		return nil, err
 	}
 
-	s.logger.Info().Str("name", cfg.Name).Msg("配置更新成功")
+	s.logger.Info().Str("name", cfg.Name).Msg("The configuration update was successful")
 	return cfg, nil
 }

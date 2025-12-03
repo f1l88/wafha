@@ -18,8 +18,11 @@ import (
 func SetStaticFileRouter(router *gin.Engine) {
 	logger := config.Logger
 
-	// 加载HTML模板
-	router.SetHTMLTemplate(template.Must(template.New("").ParseFS(public.Templates, "templates/*")))
+	// Load HTML template
+	// Проверяем, не установлены ли уже шаблоны
+	if router.HTMLRender == nil {
+		router.SetHTMLTemplate(template.Must(template.New("").ParseFS(public.Templates, "templates/*")))
+	}
 
 	// 检查是否禁用Web功能
 	if config.Global.DisableWeb {
@@ -36,7 +39,7 @@ func SetStaticFileRouter(router *gin.Engine) {
 	// 根据WebPath配置选择文件系统
 	if config.Global.WebPath == "" {
 		// 使用嵌入的文件系统
-		logger.Info().Msg("使用嵌入的前端资源")
+		logger.Info().Msg("Use embedded front-end resources")
 		err := initFSRouter(router, public.Public.(fs.ReadDirFS), ".")
 		if err != nil {
 			panic(err)

@@ -3,11 +3,11 @@ module github.com/HUAHUAI23/RuiQi/coraza-spoa
 go 1.24.1
 
 require (
-	github.com/HUAHUAI23/RuiQi/pkg v0.0.0-20250308163638-ae40316258d8
+	github.com/HUAHUAI23/RuiQi/pkg v0.0.0-20250602150918-32b359fda6ff
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/corazawaf/coraza-coreruleset v0.0.0-20240226094324-415b1017abdc
 	github.com/corazawaf/coraza/v3 v3.3.3
-	github.com/dropmorepackets/haproxy-go v0.0.6
+	github.com/dropmorepackets/haproxy-go v0.0.7
 	github.com/jcchavezs/mergefs v0.1.0
 	github.com/oschwald/geoip2-golang v1.11.0
 	github.com/rs/zerolog v1.34.0
@@ -53,7 +53,7 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
 	golang.org/x/tools v0.33.0 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	rsc.io/binaryregexp v0.2.0 // indirect
 )
